@@ -1,0 +1,49 @@
+services:
+  database:
+    image: postgres:14.5
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_db
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$(cat /run/secrets/postgres_user) -d $$(cat /run/secrets/postgres_db)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  app:
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "5126:8080"
+    secrets:
+      - app_connection_string
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+
+volumes:
+  pgdata:
+
+secrets:
+  postgres_user:
+    file: .secrets/postgres_user.txt
+  postgres_password:
+    file: .secrets/postgres_password.txt
+  postgres_db:
+    file: .secrets/postgres_db.txt
+  app_connection_string:
+    file: .secrets/app_connection_string.txt

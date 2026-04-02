@@ -1,0 +1,1 @@
+Host=[[Your postgres_db.txt value]];Username=[[Your postgres_user.txt value]];Password=[[Your postgres_password.txt value]];Database=[[Your postgres_db.txt value]]
