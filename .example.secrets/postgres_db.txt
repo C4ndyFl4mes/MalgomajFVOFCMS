@@ -1,1 +1,1 @@
-VALUE
+design_time_placeholder
