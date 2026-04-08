@@ -22,6 +22,45 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<ImageAltTranslationModel> ImageAltTranslations { get; set; }
     public DbSet<ExternalMediaTranslationModel> ExternalMediaTranslations { get; set; }
 
+    // Seed inital data for Contact table
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder
+            .UseSeeding((context, _) =>
+            {
+            AppDbContext ctx = (AppDbContext)context;
+            if (!ctx.Contact.Any())
+                {
+                    ContactModel contact = new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Email = "placeholder@mail.com",
+                        Phone = "0101-123456",
+                        Address = "Placeholder Street 123, City, Country"
+                    };
+                    ctx.Contact.Add(contact);
+                    ctx.SaveChanges();
+                }
+            })
+            .UseAsyncSeeding(async (context, _, ct) =>
+            {
+                AppDbContext ctx = (AppDbContext)context;
+                if (!await ctx.Contact.AnyAsync(ct))
+                {
+                    ContactModel contact = new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Email = "placeholder@mail.com",
+                        Phone = "0101-123456",
+                        Address = "Placeholder Street 123, City, Country"
+                    };
+                    await ctx.Contact.AddAsync(contact, ct);
+
+                    await ctx.SaveChangesAsync(ct);
+                }
+            });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -33,7 +72,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<PageTranslationModel>()
             .HasOne(pt => pt.Page)
             .WithMany(p => p.Translations)
-            .HasForeignKey(pt => pt.PageId);
+            .HasForeignKey(pt => pt.PageId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete when a Page is deleted.
 
         // Configure the BoardMemberTranslation entity.
         modelBuilder.Entity<BoardMemberTranslationModel>()
@@ -42,7 +82,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<BoardMemberTranslationModel>()
             .HasOne(bmt => bmt.BoardMember)
             .WithMany(bm => bm.Translations)
-            .HasForeignKey(bmt => bmt.BoardMemberId);
+            .HasForeignKey(bmt => bmt.BoardMemberId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete when a BoardMember is deleted.
 
         // Configure the ImageAltTranslation entity.
         modelBuilder.Entity<ImageAltTranslationModel>()
@@ -51,7 +92,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<ImageAltTranslationModel>()
             .HasOne(iat => iat.Image)
             .WithMany(i => i.Translations)
-            .HasForeignKey(iat => iat.ImageId);
+            .HasForeignKey(iat => iat.ImageId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete when an Image is deleted.
 
         // Configure the ExternalMediaTranslation entity.
         modelBuilder.Entity<ExternalMediaTranslationModel>()
@@ -60,8 +102,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<ExternalMediaTranslationModel>()
             .HasOne(emt => emt.ExternalMedia)
             .WithMany(em => em.Translations)
-            .HasForeignKey(emt => emt.ExternalMediaId);
-        
+            .HasForeignKey(emt => emt.ExternalMediaId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete when an ExternalMedia is deleted.
+
         // Configure the Slide entity.
         modelBuilder.Entity<SlideModel>()
             .HasKey(s => s.ImageId); // Primary key is ImageId.
@@ -70,7 +113,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<ExternalMediaModel>()
             .Property(em => em.Type)
             .HasConversion<string>();
-        
+
         // Configure the saving of PageModel property Type as string.
         modelBuilder.Entity<PageModel>()
             .Property(p => p.Type)

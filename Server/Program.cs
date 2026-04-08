@@ -1,4 +1,8 @@
 using FastEndpoints;
+using FastEndpoints.Swagger;
+using Microsoft.EntityFrameworkCore;
+using Server.API.Data;
+using Server.API.Exceptions;
 using Server.UI;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -37,7 +41,9 @@ else
 // Services:
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddFastEndpoints();
+builder.Services.AddFastEndpoints().SwaggerDocument();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 // Defines WebApplication and the HTTP request pipeline.
@@ -52,6 +58,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
+app.UseMiddleware<GlobalExceptionHandler>();
+
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -59,6 +67,6 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 
-app.UseFastEndpoints();
+app.UseFastEndpoints().UseSwaggerGen();
 
 app.Run();
