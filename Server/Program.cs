@@ -45,7 +45,6 @@ builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 // Defines WebApplication and the HTTP request pipeline.
 WebApplication app = builder.Build();
 
@@ -57,6 +56,8 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseMiddleware<GlobalExceptionHandler>();
 

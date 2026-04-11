@@ -13,10 +13,6 @@ public sealed class PageModel
     public DateTime? PublishedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
-    // Navigation property for the page's thumbnail image.
-    public ImageModel? Thumbnail { get; set; }
-    public Guid? ThumbnailId { get; set; }
-
     // Navigation property for translations.
     public required ICollection<PageTranslationModel> Translations { get; set; }
 }

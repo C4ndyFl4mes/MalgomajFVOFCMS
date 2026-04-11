@@ -107,7 +107,13 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
         // Configure the Slide entity.
         modelBuilder.Entity<SlideModel>()
-            .HasKey(s => s.ImageId); // Primary key is ImageId.
+            .HasKey(s => s.Id); // Primary key.
+
+        modelBuilder.Entity<SlideModel>()
+            .HasOne(s => s.Image)
+            .WithOne(i => i.Slide)
+            .HasForeignKey<SlideModel>(s => s.ImageId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete when an Image is deleted.
 
         // Configure the saving of ExternalMedia property Type as string.
         modelBuilder.Entity<ExternalMediaModel>()

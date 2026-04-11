@@ -12,7 +12,7 @@ using Server.API.Data;
 namespace Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260408133215_Initial")]
+    [Migration("20260409134509_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -141,6 +141,9 @@ namespace Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Images");
@@ -191,9 +194,6 @@ namespace Server.Migrations
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("ThumbnailId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
@@ -202,8 +202,6 @@ namespace Server.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ThumbnailId");
 
                     b.ToTable("Pages");
                 });
@@ -271,19 +269,20 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.API.Models.SlideModel", b =>
                 {
-                    b.Property<Guid>("ImageId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ImageId1")
+                    b.Property<Guid>("ImageId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.HasKey("ImageId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ImageId1");
+                    b.HasIndex("ImageId")
+                        .IsUnique();
 
                     b.ToTable("Slides");
                 });
@@ -398,15 +397,6 @@ namespace Server.Migrations
                     b.Navigation("Page");
                 });
 
-            modelBuilder.Entity("Server.API.Models.PageModel", b =>
-                {
-                    b.HasOne("Server.API.Models.ImageModel", "Thumbnail")
-                        .WithMany()
-                        .HasForeignKey("ThumbnailId");
-
-                    b.Navigation("Thumbnail");
-                });
-
             modelBuilder.Entity("Server.API.Models.PageTranslationModel", b =>
                 {
                     b.HasOne("Server.API.Models.PageModel", "Page")
@@ -421,8 +411,8 @@ namespace Server.Migrations
             modelBuilder.Entity("Server.API.Models.SlideModel", b =>
                 {
                     b.HasOne("Server.API.Models.ImageModel", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId1")
+                        .WithOne("Slide")
+                        .HasForeignKey("Server.API.Models.SlideModel", "ImageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -452,6 +442,8 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.API.Models.ImageModel", b =>
                 {
+                    b.Navigation("Slide");
+
                     b.Navigation("Translations");
                 });
 

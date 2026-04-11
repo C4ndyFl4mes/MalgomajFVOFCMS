@@ -15,6 +15,9 @@
 *.userosscache
 *.sln.docstates
 
+# Ignores the image folder.
+images/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
