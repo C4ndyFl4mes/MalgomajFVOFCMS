@@ -8,7 +8,7 @@ public sealed class GetBoardMemberEndpoint(AppDbContext ctx) : Endpoint<GetBoard
 {
     public override void Configure()
     {
-        Get("/boardmembers");
+        Get("/api/boardmembers");
         AllowAnonymous();
     }
 

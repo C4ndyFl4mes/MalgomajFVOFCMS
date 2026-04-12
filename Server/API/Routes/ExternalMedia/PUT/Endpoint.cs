@@ -8,7 +8,7 @@ public sealed class PutExternalMediaEndpoint(AppDbContext ctx) : Endpoint<PutExt
 {
     public override void Configure()
     {
-        Put("/externalmedia");
+        Put("/api/externalmedia");
         AllowAnonymous();
     }
 

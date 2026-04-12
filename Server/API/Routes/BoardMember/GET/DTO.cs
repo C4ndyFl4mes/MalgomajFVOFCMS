@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.BoardMember.GET;
@@ -19,7 +20,7 @@ public record BoardMemberDTO
     public required string Text { get; set; } // Already localized text for the requested language.
 }
 
-public sealed class GetBoardMemberRequestValidator : AbstractValidator<GetBoardMemberRequest>
+public sealed class GetBoardMemberRequestValidator : Validator<GetBoardMemberRequest>
 {
     public GetBoardMemberRequestValidator()
     {

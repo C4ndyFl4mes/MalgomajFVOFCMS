@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 using Server.API.Enums;
 
@@ -18,7 +19,7 @@ public record PostExternalMediaResponse
     public required Dictionary<string, string> Translations { get; set; } // Key: Language code, Value: Text
 }
 
-public class PostExternalMediaRequestValidator : AbstractValidator<PostExternalMediaRequest>
+public class PostExternalMediaRequestValidator : Validator<PostExternalMediaRequest>
 {
     public PostExternalMediaRequestValidator()
     {

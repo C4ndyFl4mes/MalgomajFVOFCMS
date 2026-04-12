@@ -8,7 +8,7 @@ public sealed class PostBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PostBoa
 {
     public override void Configure()
     {
-        Post("/boardmembers");
+        Post("/api/boardmembers");
         AllowAnonymous();
     }
 

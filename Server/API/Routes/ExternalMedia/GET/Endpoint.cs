@@ -8,7 +8,7 @@ public sealed class GetExternalMediaEndpoint(AppDbContext ctx) : Endpoint<GetExt
 {
     public override void Configure()
     {
-        Get("/externalmedia/{id}");
+        Get("/api/externalmedia/{id}");
         AllowAnonymous();
     }
 

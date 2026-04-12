@@ -9,7 +9,7 @@ public sealed class GetContactEndpoint(AppDbContext ctx) : EndpointWithoutReques
 {
     public override void Configure()
     {
-        Get("/contact");
+        Get("/api/contact");
         AllowAnonymous();
     }
 

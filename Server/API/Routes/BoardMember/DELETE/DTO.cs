@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.BoardMember.DELETE;
@@ -13,7 +14,7 @@ public record DeleteBoardMemberResponse
     public required string Message { get; set; }
 }
 
-public class DeleteBoardMemberRequestValidator : AbstractValidator<DeleteBoardMemberRequest>
+public class DeleteBoardMemberRequestValidator : Validator<DeleteBoardMemberRequest>
 {
     public DeleteBoardMemberRequestValidator()
     {

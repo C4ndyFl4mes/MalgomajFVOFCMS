@@ -7,7 +7,7 @@ public sealed class DeleteExternalMediaEndpoint(AppDbContext ctx) : Endpoint<Del
 {
     public override void Configure()
     {
-        Delete("/externalmedia/{id}");
+        Delete("/api/externalmedia/{id}");
         AllowAnonymous();
     }
 

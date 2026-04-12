@@ -8,7 +8,7 @@ public sealed class PostExternalMediaEndpoint(AppDbContext ctx) : Endpoint<PostE
 {
     public override void Configure()
     {
-        Post("/externalmedia");
+        Post("/api/externalmedia");
         AllowAnonymous();
     }
 

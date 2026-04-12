@@ -1,5 +1,6 @@
 using Server.API.Data;
 using Server.API.Enums;
+using Server.API.Exceptions;
 using Server.API.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -25,7 +26,7 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
         if (imageType == ImageType.Icon)
         {
             if (!isSvg)
-                throw new InvalidOperationException("Ikoner måste laddas upp som SVG.");
+                throw new BadRequestException("Ikoner måste laddas upp som SVG.");
 
             string svgDirectory = Path.Combine(imageRoot, "svg");
             Directory.CreateDirectory(svgDirectory);
@@ -38,7 +39,7 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
         else
         {
             if (isSvg)
-                throw new InvalidOperationException("Endast ikoner kan laddas upp som SVG.");
+                throw new BadRequestException("Endast ikoner kan laddas upp som SVG.");
             
             Directory.CreateDirectory(Path.Combine(imageRoot, "jpg"));
             Directory.CreateDirectory(Path.Combine(imageRoot, "webp"));
@@ -112,7 +113,7 @@ public class ImageConfig {
             ImageType.Banner => Banner,
             ImageType.Normal => Normal,
             ImageType.Square => Square,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), $"Unsupported image type: {type}")
+            _ => throw new ArgumentOutOfRangeException(nameof(type), $"Ogiltig bildtyp: {type}")
         };
 
         return isMobile ? ScaleDimensions(dimensions) : dimensions;

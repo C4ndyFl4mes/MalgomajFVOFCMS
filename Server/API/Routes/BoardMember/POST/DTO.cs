@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.BoardMember.POST;
@@ -15,7 +16,7 @@ public record PostBoardMemberResponse
     public required Dictionary<string, string> Translations {get; set; } // Key: Language code, Value: Text.
 }
 
-public class PostBoardMemberRequestValidator : AbstractValidator<PostBoardMemberRequest>
+public class PostBoardMemberRequestValidator : Validator<PostBoardMemberRequest>
 {
     public PostBoardMemberRequestValidator()
     {

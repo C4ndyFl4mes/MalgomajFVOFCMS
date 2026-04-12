@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.BoardMember.PUT;
@@ -16,7 +17,7 @@ public record PutBoardMemberResponse
     public required Dictionary<string, string> Translations { get; set; } // Key: Language code, Value: Text.
 }
 
-public class PutBoardMemberRequestValidator : AbstractValidator<PutBoardMemberRequest>
+public class PutBoardMemberRequestValidator : Validator<PutBoardMemberRequest>
 {
     public PutBoardMemberRequestValidator()
     {

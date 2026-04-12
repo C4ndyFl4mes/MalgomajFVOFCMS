@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ImageFile.GET;
 
-public class GetImagesEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetImagesResponse>
+public class GetImagesEndpoint(AppDbContext ctx) : Endpoint<GetImagesRequest, GetImagesResponse>
 {
     public override void Configure()
     {
@@ -12,10 +12,10 @@ public class GetImagesEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetIma
         AllowAnonymous();
     }
 
-    public override async Task<GetImagesResponse> ExecuteAsync(CancellationToken ct)
+    public override async Task<GetImagesResponse> ExecuteAsync(GetImagesRequest request, CancellationToken ct)
     {
         GetImagesData data = new(ctx, Resolve<IWebHostEnvironment>());
-        List<ImageModel> images = await data.GetAllImagesAsync(ct);
+        List<ImageModel> images = await data.GetAllImagesAsync(request.Types, ct);
         return GetImagesMapper.ToResponse(images);
     }
 }

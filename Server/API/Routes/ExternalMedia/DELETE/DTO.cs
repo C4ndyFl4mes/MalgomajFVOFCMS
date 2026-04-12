@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.ExternalMedia.DELETE;
@@ -13,7 +14,7 @@ public record DeleteExternalMediaResponse
     public required string Message { get; set; }
 }
 
-public class DeleteExternalMediaRequestValidator : AbstractValidator<DeleteExternalMediaRequest>
+public class DeleteExternalMediaRequestValidator : Validator<DeleteExternalMediaRequest>
 {
     public DeleteExternalMediaRequestValidator()
     {

@@ -8,7 +8,7 @@ public sealed class PutBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PutBoard
 {
     public override void Configure()
     {
-        Put("/boardmembers");
+        Put("/api/boardmembers");
         AllowAnonymous();
     }
 

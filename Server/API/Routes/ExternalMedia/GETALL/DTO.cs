@@ -22,7 +22,7 @@ public record GetAllExternalMediaRequest
     public required string Language { get; set; }
 }
 
-public class GetAllExternalMediaRequestValidator : AbstractValidator<GetAllExternalMediaRequest>
+public class GetAllExternalMediaRequestValidator : Validator<GetAllExternalMediaRequest>
 {
     public GetAllExternalMediaRequestValidator()
     {

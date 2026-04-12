@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FastEndpoints;
 using FluentValidation;
 using Server.API.Enums;
 
@@ -22,7 +23,7 @@ public record PostImageResponse
     public required string Type { get; set; }
 }
 
-public class PostImageRequestValidator : AbstractValidator<PostImageRequest>
+public class PostImageRequestValidator : Validator<PostImageRequest>
 {
     public PostImageRequestValidator()
     {

@@ -7,7 +7,7 @@ public sealed class DeleteBoardMemberEndpoint(AppDbContext ctx) : Endpoint<Delet
 {
     public override void Configure()
     {
-        Delete("/boardmembers/{id}");
+        Delete("/api/boardmembers/{id}");
         AllowAnonymous();
     }
 

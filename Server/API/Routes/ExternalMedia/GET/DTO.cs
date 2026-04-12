@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace Server.API.Routes.ExternalMedia.GET;
@@ -16,7 +17,7 @@ public record GetExternalMediaRequest
     public required string Language { get; set; }
 }
 
-public class GetExternalMediaRequestValidator : AbstractValidator<GetExternalMediaRequest>
+public class GetExternalMediaRequestValidator : Validator<GetExternalMediaRequest>
 {
     public GetExternalMediaRequestValidator()
     {

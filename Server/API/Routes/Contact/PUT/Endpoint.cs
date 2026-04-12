@@ -8,7 +8,7 @@ public sealed class ContactPutEndpoint(AppDbContext ctx) : Endpoint<PutContactRe
 {
     public override void Configure()
     {
-        Put("/contact");
+        Put("/api/contact");
         AllowAnonymous(); // Just for testing purposes, should be protected in production.
     }
 
