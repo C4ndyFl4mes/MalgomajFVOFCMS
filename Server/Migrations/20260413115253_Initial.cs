@@ -155,15 +155,14 @@ namespace Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SortOrder = table.Column<int>(type: "integer", nullable: false),
-                    ImageId = table.Column<Guid>(type: "uuid", nullable: false)
+                    SortOrder = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Slides", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Slides_Images_ImageId",
-                        column: x => x.ImageId,
+                        name: "FK_Slides_Images_Id",
+                        column: x => x.Id,
                         principalTable: "Images",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -261,12 +260,6 @@ namespace Server.Migrations
                 name: "IX_MenuItems_PageId",
                 table: "MenuItems",
                 column: "PageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Slides_ImageId",
-                table: "Slides",
-                column: "ImageId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",

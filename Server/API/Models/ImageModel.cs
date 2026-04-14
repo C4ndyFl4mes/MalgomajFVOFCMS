@@ -10,6 +10,6 @@ public sealed class ImageModel
     // Navigation property for translations
     public required ICollection<ImageAltTranslationModel> Translations { get; set; }
 
-    // Navigation property for the Slide entity (one-to-one relationship)
+    // Optional one-to-one relationship: An image may be a slide, but that is not required.
     public SlideModel? Slide { get; set; }
 }

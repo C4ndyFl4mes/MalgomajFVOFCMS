@@ -54,6 +54,7 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
         {
             Id = imageId,
             Type = imageType,
+            Slide = null!, // This will be set if the image is associated with a slide later.
             Translations = request.Translations.Select(t => new ImageAltTranslationModel
             {
                 ImageId = imageId,

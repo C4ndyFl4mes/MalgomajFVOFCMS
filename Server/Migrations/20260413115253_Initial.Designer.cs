@@ -12,7 +12,7 @@ using Server.API.Data;
 namespace Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260409134509_Initial")]
+    [Migration("20260413115253_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -270,19 +270,12 @@ namespace Server.Migrations
             modelBuilder.Entity("Server.API.Models.SlideModel", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ImageId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ImageId")
-                        .IsUnique();
 
                     b.ToTable("Slides");
                 });
@@ -412,7 +405,7 @@ namespace Server.Migrations
                 {
                     b.HasOne("Server.API.Models.ImageModel", "Image")
                         .WithOne("Slide")
-                        .HasForeignKey("Server.API.Models.SlideModel", "ImageId")
+                        .HasForeignKey("Server.API.Models.SlideModel", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
