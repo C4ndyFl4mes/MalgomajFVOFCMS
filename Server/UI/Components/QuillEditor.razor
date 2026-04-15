@@ -1,0 +1,42 @@
+@inject IJSRuntime JS
+
+@namespace Server.UI.Components
+
+<div id="@EditorId" class="w-200 h-75"></div>
+
+@code {
+    private string EditorId = $"editor-{Guid.NewGuid()}";
+    private IJSObjectReference? module;
+
+    [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/editor.bundle.js");
+            
+            await module.InvokeVoidAsync(
+                "initQuill",
+                EditorId,
+                DotNetObjectReference.Create(this)
+            );
+
+            if (!string.IsNullOrEmpty(Value))
+            {
+                await module.InvokeVoidAsync("setHTMLContent", EditorId, Value);
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnEditorChanged(string htmlContent)
+    {
+        Value = htmlContent;
+        await ValueChanged.InvokeAsync(htmlContent);
+        Console.WriteLine($"Editor content changed: {htmlContent}");
+    }
+}

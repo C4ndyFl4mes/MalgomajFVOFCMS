@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Server.API.Data;
 using Server.API.Exceptions;

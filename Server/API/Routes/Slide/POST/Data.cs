@@ -35,31 +35,7 @@ public class PostSlideData(AppDbContext ctx)
 
         await ctx.Slides.AddRangeAsync(slideModels, ct);
 
-        int savedChanges = await ctx.SaveChangesAsync(ct);
-
-
-        Console.WriteLine(savedChanges);
-
-
-
-
-
-
-        // List<ImageModel> images = await ctx.Images.Where(i => request.Slides.Any(slide => slide.ImageID == i.Id)).ToListAsync(ct);
-        // List<ImageModel> existingSlides = await ctx.Images.Include(image => image.Slide).Where(image => image.Slide != null && image.Type == Enums.ImageType.Banner).ToListAsync(ct);
-
-        // List<ImageModel> images = await ctx.Images.Where(image => 
-
-        // Move to get later.
-        // if (images.All(image => request.Slides.Any(slide => slide.ImageID == image.Id)))
-        //     throw new BadRequestException("En eller flera bild ID:er finns inte.");
-
-        // if (images)
-
-        // foreach (ImageModel image in images)
-        // {
-        //     Console.WriteLine(image.Id);
-        // }
+        await ctx.SaveChangesAsync(ct);
     }
 
     private async Task<List<SlideModel>> ClearAsync(CancellationToken ct)

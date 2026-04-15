@@ -200,12 +200,11 @@ namespace Server.Migrations
                 {
                     PageId = table.Column<Guid>(type: "uuid", nullable: false),
                     LanguageCode = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     Slug = table.Column<string>(type: "text", nullable: false),
-                    Excerpt = table.Column<string>(type: "text", nullable: true),
-                    MetaDescription = table.Column<string>(type: "text", nullable: false),
-                    MetaKeywords = table.Column<string>(type: "text", nullable: false)
+                    MetaDescription = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    MetaKeywords = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false)
                 },
                 constraints: table =>
                 {
