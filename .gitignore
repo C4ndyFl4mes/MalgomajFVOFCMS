@@ -18,6 +18,9 @@
 # Ignores the image folder.
 images/
 
+# Ignore the js folder.
+js/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
