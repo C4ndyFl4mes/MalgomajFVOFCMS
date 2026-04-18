@@ -8,6 +8,8 @@ public class PostSlideData(AppDbContext ctx)
 {
     public async Task PostSlideAsync(List<SlideModel> slides, CancellationToken ct)
     {
+        await using var transaction = await ctx.Database.BeginTransactionAsync(ct);
+
         List<ImageModel> banners = await ctx.Images.Where(image => image.Type == Enums.ImageType.Banner).ToListAsync(ct);
 
         if (!banners.Exists(banner => slides.Any(slide => banner.Id == slide.Id)))
@@ -28,14 +30,10 @@ public class PostSlideData(AppDbContext ctx)
 
         slideModels.AddRange(slides);
 
-        foreach (SlideModel slide in slideModels)
-        {
-            Console.WriteLine(slide.Id);
-        }
-
         await ctx.Slides.AddRangeAsync(slideModels, ct);
 
         await ctx.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 
     private async Task<List<SlideModel>> ClearAsync(CancellationToken ct)
@@ -43,8 +41,6 @@ public class PostSlideData(AppDbContext ctx)
         List<SlideModel> existingSlides = await ctx.Slides.ToListAsync(ct);
         ctx.Slides.RemoveRange(existingSlides);
         existingSlides.Clear();
-
-        await ctx.SaveChangesAsync(ct);
 
         return existingSlides;
     }

@@ -55,6 +55,10 @@ public class PostPageData(AppDbContext ctx)
         else
         {
             incomingPage.SavedAt = DateTime.UtcNow;
+            if (incomingPage.IsPublished)
+            {
+                incomingPage.PublishedAt = incomingPage.SavedAt;
+            }
             await ctx.Pages.AddAsync(incomingPage, ct);
             await ctx.SaveChangesAsync(ct);
         }
