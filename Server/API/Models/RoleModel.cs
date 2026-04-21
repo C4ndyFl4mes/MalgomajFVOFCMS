@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Identity;
 namespace Server.API.Models;
 
 // Administrator and Editor.
-public sealed class RoleModel : IdentityRole<Guid>
+public sealed class RoleModel
 {
-    // Description of the role.
+    public Guid Id { get; set; }
+    public required string Name { get; set; }
     public string Description { get; set; } = string.Empty;
 }

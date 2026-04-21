@@ -1,9 +1,15 @@
+using System.Security.Claims;
+using System.Text;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Server.API.Data;
 using Server.API.Exceptions;
+using Server.API.Models;
 using Server.UI;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -46,8 +52,84 @@ builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["issuer.txt"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["audience.txt"],
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ValidateIssuerSigningKey = true
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.TryGetValue("accessToken", out string? token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
 // Defines WebApplication and the HTTP request pipeline.
 WebApplication app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+await dbContext.Database.MigrateAsync();
+
+if (!await dbContext.Roles.AnyAsync())
+{
+    RoleModel adminRole = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "Administrator",
+        Description = "Har fullständig åtkomst till alla funktioner och inställningar."
+    };
+    RoleModel editorRole = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "Editor",
+        Description = "Kan redigera innehåll och hantera vissa inställningar."
+    };
+    dbContext.Roles.AddRange(adminRole, editorRole);
+    await dbContext.SaveChangesAsync();
+}
+
+if (!await dbContext.Users.AnyAsync())
+{
+    string adminName = builder.Configuration["admin_name.txt"] ??
+        throw new InvalidOperationException("Admin name is not configured.");
+    string adminEmail = builder.Configuration["admin_email.txt"] ??
+        throw new InvalidOperationException("Admin email is not configured.");
+    string adminPassword = builder.Configuration["admin_password.txt"] ??
+        throw new InvalidOperationException("Admin password is not configured.");
+    string roleId = (await dbContext.Roles.FirstOrDefaultAsync(r => r.Name == "Administrator"))?.Id.ToString() ??
+        throw new InvalidOperationException("Admin role is not configured in the database.");
+    
+    UserModel adminUser = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = adminName,
+        Email = adminEmail,
+        PasswordHash = new PasswordHasher<UserModel>().HashPassword(null!, adminPassword),
+        RoleId = Guid.Parse(roleId),
+        Role = null! // Will automatically be set by EF Core due to the RoleId FK.
+    };
+    dbContext.Users.Add(adminUser);
+    await dbContext.SaveChangesAsync();
+
+}
+
 
 if (!app.Environment.IsDevelopment())
 {
@@ -68,6 +150,8 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseFastEndpoints().UseSwaggerGen();
 
