@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.PUT;
 
-public sealed class PutBoardMemberData(AppDbContext ctx)
+public class PutBoardMemberData(AppDbContext ctx)
 {
     public async Task<BoardMemberModel> PutBoardMemberAsync(BoardMemberModel boardMember, CancellationToken ct)
     {

@@ -9,7 +9,7 @@ public class GetPageListEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetP
     public override void Configure()
     {
         Get("api/pages");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<GetPageListResponse> ExecuteAsync(CancellationToken ct)

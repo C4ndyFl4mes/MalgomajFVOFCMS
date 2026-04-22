@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.DELETE;
 
-public sealed class DeleteBoardMemberData(AppDbContext ctx)
+public class DeleteBoardMemberData(AppDbContext ctx)
 {
     public async Task DeleteBoardMemberAsync(Guid id, CancellationToken ct)
     {

@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.GET;
 
-public sealed class GetBoardMemberData(AppDbContext ctx)
+public class GetBoardMemberData(AppDbContext ctx)
 {
     public async Task<IEnumerable<BoardMemberModel>> GetAllBoardMembersAsync(CancellationToken ct)
     {

@@ -8,7 +8,7 @@ public class PostMenuEndpoint(AppDbContext ctx) : Endpoint<PostMenuRequest, Post
     public override void Configure()
     {
         Post("api/menu/save");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PostMenuResponse> ExecuteAsync(PostMenuRequest request, CancellationToken ct)

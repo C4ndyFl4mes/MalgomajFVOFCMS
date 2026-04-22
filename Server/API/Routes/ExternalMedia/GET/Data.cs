@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.GET;
 
-public sealed class GetExternalMediaData(AppDbContext ctx)
+public class GetExternalMediaData(AppDbContext ctx)
 {
     public async Task<ExternalMediaModel> GetExternalMediaModelAsync(Guid id, string language, CancellationToken ct)
     {

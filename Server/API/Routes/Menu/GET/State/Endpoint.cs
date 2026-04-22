@@ -8,7 +8,7 @@ public class GetMenuStateEndpoint(AppDbContext ctx) : EndpointWithoutRequest<Get
     public override void Configure()
     {
         Get("api/menu/state");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<GetMenuStateResponse> ExecuteAsync(CancellationToken ct)

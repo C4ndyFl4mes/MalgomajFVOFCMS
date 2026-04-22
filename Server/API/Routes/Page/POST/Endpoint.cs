@@ -9,7 +9,7 @@ public class PostPageEndpoint(AppDbContext ctx) : Endpoint<PostPageRequest, Post
     public override void Configure()
     {
         Post("api/page");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PostPageResponse> ExecuteAsync(PostPageRequest request, CancellationToken ct)

@@ -3,7 +3,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.DELETE;
 
-public sealed class DeleteExternalMediaData(AppDbContext ctx)
+public class DeleteExternalMediaData(AppDbContext ctx)
 {
     public async Task DeleteExternalMediaAsync(Guid id, CancellationToken ct)
     {

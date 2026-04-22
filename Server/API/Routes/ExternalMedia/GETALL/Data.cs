@@ -5,7 +5,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.GETALL;
 
-public sealed class GetAllExternalMediaData(AppDbContext ctx)
+public class GetAllExternalMediaData(AppDbContext ctx)
 {
     public async Task<IEnumerable<ExternalMediaModel>> GetAllExternalMediaAsync(string language, CancellationToken ct)
     {

@@ -1,11 +1,10 @@
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
 using Server.API.Data;
 using Server.API.Models;
 
 namespace Server.API.Routes.Contact.GET;
 
-public sealed class GetContactEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetContactResponse>
+public class GetContactEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetContactResponse>
 {
     public override void Configure()
     {
@@ -15,8 +14,9 @@ public sealed class GetContactEndpoint(AppDbContext ctx) : EndpointWithoutReques
 
     public override async Task<GetContactResponse> ExecuteAsync(CancellationToken ct)
     {
-        ContactModel contact = await ctx.Contact.FirstOrDefaultAsync(ct) ??
-            throw new InvalidOperationException("Kontaktinformation saknas i databasen.");
+        GetContactData data = new(ctx);
+
+        ContactModel contact = await data.GetContactAsync(ct);
 
         return ContactGetMapper.MapToGetContactResponse(contact);
     }

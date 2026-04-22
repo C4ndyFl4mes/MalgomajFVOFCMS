@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.Contact.PUT;
 
-public sealed class ContactPutData(AppDbContext ctx)
+public class ContactPutData(AppDbContext ctx)
 {
     public async Task<ContactModel> UpdateContactAsync(PutContactRequest request, CancellationToken ct)
     {

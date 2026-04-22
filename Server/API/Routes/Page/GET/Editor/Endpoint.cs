@@ -9,7 +9,7 @@ public class GetPageEditorEndpoint(AppDbContext ctx) : Endpoint<GetPageEditorReq
     public override void Configure()
     {
         Get("api/page/{pageId}");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<GetPageEditorResponse> ExecuteAsync(GetPageEditorRequest request, CancellationToken ct)

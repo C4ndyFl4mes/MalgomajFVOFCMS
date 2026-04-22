@@ -9,7 +9,7 @@ public class GetImagesEndpoint(AppDbContext ctx) : Endpoint<GetImagesRequest, Ge
     public override void Configure()
     {
         Get("/api/images");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<GetImagesResponse> ExecuteAsync(GetImagesRequest request, CancellationToken ct)

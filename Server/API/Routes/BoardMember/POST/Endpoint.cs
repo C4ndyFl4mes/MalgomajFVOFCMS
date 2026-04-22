@@ -4,12 +4,12 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.POST;
 
-public sealed class PostBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PostBoardMemberRequest, PostBoardMemberResponse>
+public class PostBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PostBoardMemberRequest, PostBoardMemberResponse>
 {
     public override void Configure()
     {
         Post("/api/boardmembers");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PostBoardMemberResponse> ExecuteAsync(PostBoardMemberRequest request, CancellationToken ct)

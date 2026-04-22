@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.GET;
 
-public sealed class GetBoardMemberEndpoint(AppDbContext ctx) : Endpoint<GetBoardMemberRequest, GetBoardMemberResponse>
+public class GetBoardMemberEndpoint(AppDbContext ctx) : Endpoint<GetBoardMemberRequest, GetBoardMemberResponse>
 {
     public override void Configure()
     {

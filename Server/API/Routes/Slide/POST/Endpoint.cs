@@ -8,7 +8,7 @@ public class PostSlideEndpoint(AppDbContext ctx) : Endpoint<PostSlideRequest, Po
     public override void Configure()
     {
         Post("/api/slide");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PostSlideResponse> ExecuteAsync(PostSlideRequest request, CancellationToken ct)

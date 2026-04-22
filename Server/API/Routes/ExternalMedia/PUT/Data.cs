@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.PUT;
 
-public sealed class PutExternalMediaData(AppDbContext ctx)
+public class PutExternalMediaData(AppDbContext ctx)
 {
     public async Task<ExternalMediaModel> PutExternalMediaAsync(ExternalMediaModel media, CancellationToken ct)
     {

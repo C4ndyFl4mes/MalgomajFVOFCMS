@@ -3,12 +3,12 @@ using Server.API.Data;
 
 namespace Server.API.Routes.BoardMember.DELETE;
 
-public sealed class DeleteBoardMemberEndpoint(AppDbContext ctx) : Endpoint<DeleteBoardMemberRequest, DeleteBoardMemberResponse>
+public class DeleteBoardMemberEndpoint(AppDbContext ctx) : Endpoint<DeleteBoardMemberRequest, DeleteBoardMemberResponse>
 {
     public override void Configure()
     {
         Delete("/api/boardmembers/{id}");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<DeleteBoardMemberResponse> ExecuteAsync(DeleteBoardMemberRequest request, CancellationToken ct)

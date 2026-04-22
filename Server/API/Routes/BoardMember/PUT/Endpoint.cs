@@ -4,12 +4,12 @@ using Server.API.Models;
 
 namespace Server.API.Routes.BoardMember.PUT;
 
-public sealed class PutBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PutBoardMemberRequest, PutBoardMemberResponse>
+public class PutBoardMemberEndpoint(AppDbContext ctx) : Endpoint<PutBoardMemberRequest, PutBoardMemberResponse>
 {
     public override void Configure()
     {
         Put("/api/boardmembers");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PutBoardMemberResponse> ExecuteAsync(PutBoardMemberRequest request, CancellationToken ct)

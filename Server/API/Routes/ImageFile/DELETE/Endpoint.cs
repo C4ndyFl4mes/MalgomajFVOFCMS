@@ -8,7 +8,7 @@ public class DeleteImageEndpoint(AppDbContext ctx) : Endpoint<DeleteImageRequest
     public override void Configure()
     {
         Delete("/api/image/{id}");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<DeleteImageResponse> ExecuteAsync(DeleteImageRequest request, CancellationToken ct)

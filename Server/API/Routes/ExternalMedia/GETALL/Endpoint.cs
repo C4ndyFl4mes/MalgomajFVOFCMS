@@ -4,7 +4,7 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.GETALL;
 
-public sealed class GetAllExternalMediaEndpoint(AppDbContext ctx) : Endpoint<GetAllExternalMediaRequest, GetAllExternalMediaResponse>
+public class GetAllExternalMediaEndpoint(AppDbContext ctx) : Endpoint<GetAllExternalMediaRequest, GetAllExternalMediaResponse>
 {
     public override void Configure()
     {

@@ -3,12 +3,12 @@ using Server.API.Data;
 
 namespace Server.API.Routes.ExternalMedia.DELETE;
 
-public sealed class DeleteExternalMediaEndpoint(AppDbContext ctx) : Endpoint<DeleteExternalMediaRequest, DeleteExternalMediaResponse>
+public class DeleteExternalMediaEndpoint(AppDbContext ctx) : Endpoint<DeleteExternalMediaRequest, DeleteExternalMediaResponse>
 {
     public override void Configure()
     {
         Delete("/api/externalmedia/{id}");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<DeleteExternalMediaResponse> ExecuteAsync(DeleteExternalMediaRequest request, CancellationToken ct)

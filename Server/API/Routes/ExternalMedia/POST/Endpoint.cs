@@ -4,12 +4,12 @@ using Server.API.Models;
 
 namespace Server.API.Routes.ExternalMedia.POST;
 
-public sealed class PostExternalMediaEndpoint(AppDbContext ctx) : Endpoint<PostExternalMediaRequest, PostExternalMediaResponse>
+public class PostExternalMediaEndpoint(AppDbContext ctx) : Endpoint<PostExternalMediaRequest, PostExternalMediaResponse>
 {
     public override void Configure()
     {
         Post("/api/externalmedia");
-        AllowAnonymous();
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PostExternalMediaResponse> ExecuteAsync(PostExternalMediaRequest request, CancellationToken ct)
