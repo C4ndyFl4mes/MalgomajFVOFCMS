@@ -3,6 +3,7 @@ using FluentValidation;
 namespace Server.API.Exceptions;
 
 public record ExceptionResponse(
+    int StatusCode,
     string Type,
     string Detail
 );
@@ -33,6 +34,7 @@ public sealed class GlobalExceptionHandler(RequestDelegate next, ILogger<GlobalE
 
             await context.Response.WriteAsJsonAsync(
                 new ExceptionResponse(
+                    StatusCode: context.Response.StatusCode,
                     Type: ex.GetType().Name,
                     Detail: ex.Message
                 )

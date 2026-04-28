@@ -1,0 +1,63 @@
+@page "/authentication"
+@using Server.UI.Layout.AuthenticationLayout
+@attribute [AllowAnonymous]
+@layout AuthenticationLayout
+@rendermode InteractiveServer
+@inherits AuthenticationBase
+
+<h1>Autentisering för Malgomaj FVOF innehållshanteringssytem</h1>
+<form class="w-100 p-5 mx-auto mt-[5%] shadow-lg rounded-xl">
+    <fieldset class="w-full flex flex-col">
+        <legend class="font-bold">Inloggningsformulär</legend>
+        <div class="flex flex-col gap-y-5 my-5">
+            <div class="flex flex-col">
+                <label for="email-authentication-field">E-post:</label>
+                <input type="email" id="email-authentication-field" name="email" autocomplete="email"
+                       @bind-value="SignInFields.Email" class="bg-slate-100 rounded-md leading-8 px-2" />
+                @if (ValidationErrors.ContainsKey("email"))
+                {
+                    <div class="error">
+                        <span>@ValidationErrors["email"][0]</span>
+                    </div>
+                }
+            </div>
+            <div class="flex flex-col">
+                <label for="password-authentication-field">Lösenord:</label>
+                <input type="password" id="password-authentication-field" name="password"
+                       autocomplete="current-password" @bind-value="SignInFields.Password"
+                       class="bg-slate-100 rounded-md leading-8 px-2" />
+                @if (ValidationErrors.ContainsKey("password"))
+                {
+                    <div class="error">
+                        <ul>
+                            @foreach (string error in ValidationErrors["password"])
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+        <button type="button" @onclick="HandleSignInAsync"
+                class="cursor-pointer bg-blue-300 rounded-md mx-auto px-5 py-1 hover:brightness-95 active:brightness-90">
+            Logga in
+        </button>
+        @if (ResultMessage.Message != string.Empty)
+        {
+            @if (ResultMessage.IsSuccess)
+            {
+                <div class="success">
+                    <span>@ResultMessage.Message</span>
+                    <NavLink href="/" class="text-blue-600 underline">Gå till panelen</NavLink>
+                </div>
+            }
+            else
+            {
+                <div class="error">
+                    <span>@ResultMessage.Message</span>
+                </div>
+            }
+        }
+    </fieldset>
+</form>

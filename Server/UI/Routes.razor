@@ -1,6 +1,17 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFoundPage.NotFound)">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFoundPage.NotFound)">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout.MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout.MainLayout)">
+            <NotAuthorized>
+                <div class="flex flex-col items-center h-full gap-4 mt-10">
+                    <h1 class="text-center text-3xl font-bold text-red-600">401</h1>
+                    <p class="text-center">Tyvärr, du har inte behörighet att visa denna sida.</p>
+                    <NavLink href="/authentication" class="text-blue-600 underline">Gå tillbaka till
+                        inloggningssidan
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

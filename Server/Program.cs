@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text;
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -10,8 +11,10 @@ using Microsoft.IdentityModel.Tokens;
 using Server.API.Data;
 using Server.API.Exceptions;
 using Server.API.Models;
+using Server.API.Routes.User.SignIn;
 using Server.UI;
 using Server.UI.Layout;
+using Server.UI.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +56,9 @@ builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<NavigationState>();
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IValidator<SignInRequest>, SignInValidator>();
 
 string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
