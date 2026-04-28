@@ -1,10 +1,12 @@
-html, body {
+html,
+body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a, .btn-link {
+/* a, .btn-link {
     color: #006bb7;
 }
+
 
 .btn-primary {
     color: #fff;
@@ -57,4 +59,13 @@ h1:focus {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
+}  */
+
+a.active {
+    font-weight: bold;
+}
+
+li:has(>a.active) {
+    background-color: #dce9f7;
+    font-size: 1.05rem;
 }

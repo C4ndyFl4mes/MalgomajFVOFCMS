@@ -11,6 +11,7 @@ using Server.API.Data;
 using Server.API.Exceptions;
 using Server.API.Models;
 using Server.UI;
+using Server.UI.Layout;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<NavigationState>();
 
 string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
