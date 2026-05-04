@@ -14,17 +14,17 @@ public class BoardBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Innehåll",
-                Href = "/content"
+                Href = "/admin/content"
             },
             new BreadcrumbModel
             {
                 Title = "Styrelse",
-                Href = "/content/board"
+                Href = "/admin/content/board"
             }
         ]);
     }

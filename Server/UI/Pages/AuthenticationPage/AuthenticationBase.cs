@@ -13,6 +13,8 @@ public class AuthenticationBase : ComponentBase, IAsyncDisposable
     protected IJSRuntime JS { get; set; } = default!;
     [Inject]
     protected IValidator<SignInRequest> SignInValidator { get; set; } = default!;
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; } = default!;
     
     protected SignInRequest SignInFields { get; set; } = new()
     {
@@ -55,6 +57,9 @@ public class AuthenticationBase : ComponentBase, IAsyncDisposable
 
         ResultMessage = (true, result.Data.Message);
         await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(2000);
+        NavigationManager.NavigateTo("/admin", forceLoad: true);
     }
 
     private async Task<APIResult<SignInResponse>> SignInFromBrowserAsync(SignInRequest request)

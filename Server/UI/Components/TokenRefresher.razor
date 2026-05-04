@@ -1,0 +1,111 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@namespace Server.UI.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+    private PeriodicTimer? _timer;
+    private Task? _backgroundTask;
+    private IJSObjectReference? _authModule;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Starting token refresher...");
+        _timer = new PeriodicTimer(TimeSpan.FromMinutes(10));
+        _backgroundTask = RunAsync();
+    }
+
+    // Försöker att uppdatera token direkt efter att komponenten har renderats första gången.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _disposed) return;
+
+        await TryRefreshAsync();
+    }
+
+    // Metoden förs var tionde minut för att hålla användaren autentiserad.
+    private async Task RunAsync()
+    {
+        Console.WriteLine("Token refresher is running...");
+        if (_timer is null) return;
+
+        try
+        {
+            while (await _timer.WaitForNextTickAsync())
+            {
+                if (_disposed) return;
+
+                await TryRefreshAsync();
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            Console.WriteLine("Token refresher timer was disposed.");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Token refresher operation was canceled.");
+        }
+    }
+
+    // Försöker att uppdatera token om användaren är autentiserad.
+    private async Task TryRefreshAsync()
+    {
+        AuthenticationState authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true) return;
+        try
+        {
+            _authModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "/fetch/authentication.js");
+            await _authModule.InvokeVoidAsync("refresh");
+            Console.WriteLine("Token refreshed successfully.");
+        }
+        catch (JSDisconnectedException)
+        {
+            Console.WriteLine("JS module is disconnected.");
+        }
+        catch (TaskCanceledException)
+        {
+            Console.WriteLine("Token refresh task was canceled.");
+        }
+    }
+
+    // Rensar upp timer, bakgrundsuppgift och JS-modul vid komponentens avstängning.
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+
+        PeriodicTimer? timer = _timer;
+        _timer = null;
+        timer?.Dispose();
+
+        Task? backgroundTask = _backgroundTask;
+        if (backgroundTask is not null)
+            try
+            {
+                await backgroundTask.ConfigureAwait(false);
+
+            }
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Background task was disposed during disposal.");
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("Background task was canceled during disposal.");
+            }
+        
+        if (_authModule is not null)
+        {
+            try
+            {
+                await _authModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                Console.WriteLine("JS module is already disconnected during disposal.");
+            }
+        }
+    }
+}

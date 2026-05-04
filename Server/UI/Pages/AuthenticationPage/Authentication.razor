@@ -1,8 +1,7 @@
-@page "/authentication"
+@page "/admin/authentication"
 @using Server.UI.Layout.AuthenticationLayout
 @attribute [AllowAnonymous]
 @layout AuthenticationLayout
-@rendermode InteractiveServer
 @inherits AuthenticationBase
 
 <h1>Autentisering för Malgomaj FVOF innehållshanteringssytem</h1>
@@ -49,7 +48,6 @@
             {
                 <div class="success">
                     <span>@ResultMessage.Message</span>
-                    <NavLink href="/" class="text-blue-600 underline">Gå till panelen</NavLink>
                 </div>
             }
             else

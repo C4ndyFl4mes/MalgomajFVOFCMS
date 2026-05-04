@@ -14,17 +14,17 @@ public class ImagesBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Filer",
-                Href = "/files"
+                Href = "/admin/files"
             },
             new BreadcrumbModel
             {
                 Title = "Bilder",
-                Href = "/files/images"
+                Href = "/admin/files/images"
             }
         ]);
     }

@@ -14,12 +14,12 @@ public class ProfileBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Profil",
-                Href = "/profile"
+                Href = "/admin/profile"
             }
         ]);
     }

@@ -14,12 +14,12 @@ public class FilesBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Filer",
-                Href = "/files"
+                Href = "/admin/files"
             }
         ]);
     }

@@ -14,17 +14,17 @@ public class MediaBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Innehåll",
-                Href = "/content"
+                Href = "/admin/content"
             },
             new BreadcrumbModel
             {
                 Title = "Media",
-                Href = "/content/media"
+                Href = "/admin/content/media"
             }
         ]);
     }

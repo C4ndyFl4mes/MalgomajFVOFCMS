@@ -14,7 +14,7 @@ public class PanelBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             }
         ]);
     }

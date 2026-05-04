@@ -1,9 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using FastEndpoints;
 using Server.API.Data;
+using Server.API.Exceptions;
 
 namespace Server.API.Routes.User.Refresh;
 
-public class RefreshEndpoint(AppDbContext ctx, IConfiguration configuration) : Endpoint<RefreshRequest, RefreshResponse>
+public class RefreshEndpoint(AppDbContext ctx, IConfiguration config) : EndpointWithoutRequest<RefreshResponse>
 {
     public override void Configure()
     {
@@ -11,33 +14,75 @@ public class RefreshEndpoint(AppDbContext ctx, IConfiguration configuration) : E
         AllowAnonymous();
     }
 
-    public override async Task<RefreshResponse> ExecuteAsync(RefreshRequest request, CancellationToken ct)
+    public override async Task<RefreshResponse> ExecuteAsync(CancellationToken ct)
     {
-        RefreshData data = new(ctx, configuration);
-
-        Token token = await data.Refresh(request, ct);
-
-        HttpContext.Response.Cookies.Append("accessToken", token.AccessToken, new CookieOptions
+        Token reqToken = new()
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(15),
-            Path = "/"
-        });
-
-        HttpContext.Response.Cookies.Append("refreshToken", token.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddDays(30),
-            Path = "/"
-        });
-
-        return new RefreshResponse
-        {
-            Message = "Token uppdaterad."
+            AccessToken = HttpContext.Request.Cookies["accessToken"],
+            RefreshToken = HttpContext.Request.Cookies["refreshToken"]
         };
+
+        if (reqToken.IsEmpty)
+            throw new UnauthorizedException("Tokens saknas.");
+
+        JwtSecurityTokenHandler handler = new();
+        if (!handler.CanReadToken(reqToken.AccessToken))
+            throw new UnauthorizedException("Tillgångstoken kunde inte läsas.");
+
+        JwtSecurityToken jwt = handler.ReadJwtToken(reqToken.AccessToken);
+
+        Claim? userIdClaim = jwt.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier ||
+            c.Type == "nameid"
+        );
+        if (!Guid.TryParse(userIdClaim?.Value, out Guid userId))
+            throw new UnauthorizedException("Ogiltigt användar-ID.");
+
+        try
+        {
+            RefreshData data = new(ctx, config);
+            Token resToken = await data.Refresh(
+                new RefreshRequest
+                {
+                    UserId = userId,
+                    RefreshToken = reqToken.RefreshToken!
+                }, ct);
+
+            if (resToken.IsEmpty)
+                throw new UnauthorizedException("Token kunde inte uppdateras.");
+
+            HttpContext.Response.Cookies.Append("accessToken", resToken.AccessToken!,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+                }
+            );
+
+            HttpContext.Response.Cookies.Append("refreshToken", resToken.RefreshToken!,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                }
+            );
+
+            return new RefreshResponse
+            {
+                Message = "Token uppdaterad."
+            };
+        }
+        catch (UnauthorizedException)
+        {
+            HttpContext.Response.Cookies.Delete("accessToken");
+            HttpContext.Response.Cookies.Delete("refreshToken");
+            throw new UnauthorizedException("Ogiltig eller utgången token. Vänligen logga in igen.");
+        }
     }
 }

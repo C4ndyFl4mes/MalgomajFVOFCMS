@@ -14,17 +14,17 @@ public class ContactBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Innehåll",
-                Href = "/content"
+                Href = "/admin/content"
             },
             new BreadcrumbModel
             {
                 Title = "Kontakt",
-                Href = "/content/contact"
+                Href = "/admin/content/contact"
             }
         ]);
     }

@@ -8,8 +8,9 @@ public record RefreshRequest
 
 public record Token
 {
-    public required string AccessToken { get; set; }
-    public required string RefreshToken { get; set; }
+    public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
+    public bool IsEmpty => string.IsNullOrEmpty(AccessToken) || string.IsNullOrEmpty(RefreshToken);
 }
 
 public record RefreshResponse

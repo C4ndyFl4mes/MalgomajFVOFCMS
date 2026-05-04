@@ -23,7 +23,6 @@ public class NavigationState : IDisposable
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        Breadcrumbs = [];
         OnChange?.Invoke();
     }
 

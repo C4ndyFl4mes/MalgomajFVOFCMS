@@ -14,12 +14,12 @@ public class NotFoundBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Sidan kunde inte hittas",
-                Href = "/not-found"
+                Href = "/admin/not-found"
             }
         ]);
     }

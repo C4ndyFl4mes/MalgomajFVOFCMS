@@ -11,73 +11,73 @@ public class MenuBase : ComponentBase
         MenuItems = [
             new MenuItemModel {
                 Title = "Panelen",
-                Href = "/",
+                Href = "/admin",
                 Icon = GetIcon("dashboard")
             },
             new MenuItemModel {
                 Title = "Filer",
-                Href = "/files",
+                Href = "/admin/files",
                 Icon = GetIcon("file"),
                 SubMenuItems = [
                     new MenuItemModel {
                         Title = "Bilder",
-                        Href = "/files/images",
+                        Href = "/admin/files/images",
                         Icon = GetIcon("images")
                     }
                 ]
             },
             new MenuItemModel {
                 Title = "Innehåll",
-                Href = "/content",
+                Href = "/admin/content",
                 Icon = GetIcon("content"),
                 SubMenuItems = [
                     new MenuItemModel {
                         Title = "Meny",
-                        Href = "/content/menu",
+                        Href = "/admin/content/menu",
                         Icon = GetIcon("menu")
                     },
                     new MenuItemModel {
                         Title = "Sidor",
-                        Href = "/content/pages",
+                        Href = "/admin/content/pages",
                         Icon = GetIcon("page")
                     },
                     new MenuItemModel {
                         Title = "Media",
-                        Href = "/content/media",
+                        Href = "/admin/content/media",
                         Icon = GetIcon("media")
                     },
                     new MenuItemModel {
                         Title = "Bildspel",
-                        Href = "/content/slideshow",
+                        Href = "/admin/content/slideshow",
                         Icon = GetIcon("slideshow")
                     },
                     new MenuItemModel {
                         Title = "Kontakt",
-                        Href = "/content/contact",
+                        Href = "/admin/content/contact",
                         Icon = GetIcon("contact")
                     },
                     new MenuItemModel {
                         Title = "Styrelse",
-                        Href = "/content/board",
+                        Href = "/admin/content/board",
                         Icon = GetIcon("board")
                     },
                 ]
             },
             new MenuItemModel {
                 Title = "Hantering",
-                Href = "/management",
+                Href = "/admin/management",
                 Icon = GetIcon("management"),
                 SubMenuItems = [
                     new MenuItemModel {
                         Title = "Användare",
-                        Href = "/management/users",
+                        Href = "/admin/management/users",
                         Icon = GetIcon("users")
                     },
                 ]
             },
             new MenuItemModel {
                 Title = "Profil",
-                Href = "/profile",
+                Href = "/admin/profile",
                 Icon = GetIcon("profile")
             }
         ];

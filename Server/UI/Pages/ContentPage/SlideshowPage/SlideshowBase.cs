@@ -14,17 +14,17 @@ public class SlideshowBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Innehåll",
-                Href = "/content"
+                Href = "/admin/content"
             },
             new BreadcrumbModel
             {
                 Title = "Bildspel",
-                Href = "/content/slideshow"
+                Href = "/admin/content/slideshow"
             }
         ]);
     }

@@ -14,17 +14,17 @@ public class PagesBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Innehåll",
-                Href = "/content"
+                Href = "/admin/content"
             },
             new BreadcrumbModel
             {
                 Title = "Sidor",
-                Href = "/content/pages"
+                Href = "/admin/content/pages"
             }
         ]);
     }

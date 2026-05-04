@@ -14,12 +14,12 @@ public class ManagementBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Hantering",
-                Href = "/management"
+                Href = "/admin/management"
             }
         ]);
     }

@@ -36,3 +36,15 @@ export async function signin(request) {
         };
     }
 }
+
+export async function refresh()
+{
+    try {
+        await fetch("/api/user/refresh", {
+            method: "POST",
+            credentials: "include"
+        });
+    } catch {
+        // Ignorerar för tillfället...
+    }
+}

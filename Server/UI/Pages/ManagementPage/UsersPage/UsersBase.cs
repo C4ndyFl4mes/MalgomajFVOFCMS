@@ -14,17 +14,17 @@ public class UsersBase : ComponentBase
             new BreadcrumbModel
             {
                 Title = "Panel",
-                Href = "/"
+                Href = "/admin"
             },
             new BreadcrumbModel
             {
                 Title = "Hantering",
-                Href = "/management"
+                Href = "/admin/management"
             },
             new BreadcrumbModel
             {
                 Title = "Användare",
-                Href = "/management/users"
+                Href = "/admin/management/users"
             }
         ]);
     }
