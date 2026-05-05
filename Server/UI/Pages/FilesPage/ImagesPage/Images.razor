@@ -1,4 +1,116 @@
 @page "/admin/files/images"
+@using Server.API.Enums
+@using Server.UI.Components.Overlay
+@using Server.UI.Components.SimpleTranslation
 @inherits ImagesBase
 
-<p>Bilder</p>
+<h1 class="text-3xl">Bildhantering</h1>
+
+<form>
+    <label
+        class="w-full h-40 bg-slate-100 flex justify-center items-center rounded-2xl shadow-lg font-bold cursor-pointer">
+        Klicka eller släpp bildfilhär
+        <InputFile id="newImageFileOpenOverlay" OnChange="SetImageField" class="hidden" />
+    </label>
+</form>
+
+<Overlay IsOpen="@IsNewImageOverlayOpen" Changed="@((v) => { IsNewImageOverlayOpen = v; if (!v) ResetNewImageForm(); })">
+    <div class="w-110 max-w-full">
+        <h2 class="text-2xl mb-4">Bilduppladdning</h2>
+        <table class="table-auto border-collapse mb-4 w-full bg-slate-100">
+            <caption class="text-xl">Bild Egenskaper</caption>
+            <tr>
+                <td class="border p-1">Namn:</td>
+                <td class="border p-1">@(NewImageFile?.Name ?? "Ingen fil vald.")</td>
+            </tr>
+            <tr>
+                <td class="border p-1">Storlek:</td>
+                <td class="border p-1">@(NewImageFile != null ? $"{NewImageFile.Size / 1024} KB" : "N/A")</td>
+            </tr>
+            <tr>
+                <td class="border p-1">Typ:</td>
+                <td class="border p-1">@(NewImageFile?.ContentType ?? "N/A")</td>
+            </tr>
+        </table>
+        @if (ValidationErrors.Keys.Contains("imageFile"))
+        {
+            <ul class="error">
+                @foreach (string error in ValidationErrors["imageFile"])
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        }
+        @if (ValidationErrors.Keys.Contains("invalidFileType"))
+        {
+            <ul class="error">
+                @foreach (string error in ValidationErrors["invalidFileType"])
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        }
+        <form class="flex flex-col">
+            <h3 class="text-xl text-center">Propotioner</h3>
+            <div class="mb-4">
+                <label for="imageTypeSelect" class="mr-2">Bildtyp:</label>
+                <select id="imageTypeSelect" @bind="NewImageType" class="border rounded px-2 py-1 bg-slate-100">
+                    @foreach ((string, ImageType) imageType in ImageTypes)
+                    {
+                        <option value="@imageType.Item2">@imageType.Item1</option>
+                    }
+                </select>
+                @if (ValidationErrors.Keys.Contains("type"))
+                {
+                    <ul class="error">
+                        @foreach (string error in ValidationErrors["type"])
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+                @if (ValidationErrors.Keys.Contains("WrongFileTypeForImageType"))
+                {
+                    <ul class="error">
+                        @foreach (string error in ValidationErrors["WrongFileTypeForImageType"])
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+            </div>
+            <h3 class="text-xl text-center">Översättningar</h3>
+            <SimpleTranslation Translations="@NewImageTranslations"
+                               TranslationsChanged="@((v) => NewImageTranslations = v)" />
+            @if (ValidationErrors.Keys.Contains("translations"))
+            {
+                <ul class="error">
+                    @foreach (string error in ValidationErrors["translations"])
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+            <button type="button"
+                    class="mt-4 mx-auto cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:brightness-95 active:brightness-90 duration-200"
+                    @onclick="HandleAddNewImageAsync">
+                Lägg till bild
+            </button>
+            @if (ResultMessage.Message != string.Empty)
+            {
+                @if (ResultMessage.IsSuccess)
+                {
+                    <div class="success">
+                        <span>@ResultMessage.Message</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="error">
+                        <span>@ResultMessage.Message</span>
+                    </div>
+                }
+            }
+        </form>
+    </div>
+</Overlay>

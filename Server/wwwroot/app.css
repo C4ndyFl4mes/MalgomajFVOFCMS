@@ -85,3 +85,7 @@ li:has(>a.active) {
     padding: 0.5rem;
     border-radius: 0.25rem;
 }
+
+.overlay-curtains {
+    background-color: #0c0c0c3b;
+}

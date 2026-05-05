@@ -6,7 +6,7 @@ namespace Server.API.Routes.ImageFile.GET;
 
 public class GetImagesData(AppDbContext ctx, IWebHostEnvironment env)
 {
-    public async Task<List<ImageModel>> GetAllImagesAsync(string[] imageTypes, CancellationToken ct)
+    public async Task<GetImagesResponse> GetAllImagesAsync(string[] imageTypes, CancellationToken ct)
     {
         string imagesRoot = Path.Combine(env.WebRootPath, "images");
         if (!Directory.Exists(imagesRoot))
@@ -24,6 +24,8 @@ public class GetImagesData(AppDbContext ctx, IWebHostEnvironment env)
             throw new KeyNotFoundException("Inga bilder hittades i databasen.");
         }
 
-        return await ctx.Images.Include(i => i.Translations).Where(i => imageTypes.Contains(i.Type.ToString())).ToListAsync(ct);
+        List<ImageModel> images = await ctx.Images.Include(i => i.Translations).Where(i => imageTypes.Contains(i.Type.ToString())).ToListAsync(ct);
+        
+        return GetImagesMapper.ToResponse(images);
     }
 }

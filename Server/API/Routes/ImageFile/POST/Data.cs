@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Forms;
 using Server.API.Data;
 using Server.API.Enums;
 using Server.API.Exceptions;
@@ -34,7 +35,7 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
             string svgPath = Path.Combine(svgDirectory, "icon.svg");
 
             await using Stream target = File.Create(svgPath);
-            await request.ImageFile.CopyToAsync(target, ct);
+            await request.ImageFile.OpenReadStream(10_000_000).CopyToAsync(target, ct);
         }
         else
         {
@@ -44,7 +45,7 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
             Directory.CreateDirectory(Path.Combine(imageRoot, "jpg"));
             Directory.CreateDirectory(Path.Combine(imageRoot, "webp"));
             
-            using Image source = await Image.LoadAsync(request.ImageFile.OpenReadStream(), ct);
+            using Image source = await Image.LoadAsync(request.ImageFile.OpenReadStream(10_000_000), ct);
 
             await SaveVariantAsync(source, imageRoot, imageType, "desktop", false, ct);
             await SaveVariantAsync(source, imageRoot, imageType, "mobile", true, ct);
@@ -71,9 +72,9 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
     }
 
     // Check if the uploaded file is an SVG based on its extension and content type.
-    private static bool IsSvg(IFormFile file)
+    private static bool IsSvg(IBrowserFile file)
     {
-        string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        string extension = Path.GetExtension(file.Name).ToLowerInvariant();
         string contentType = file.ContentType.ToLowerInvariant();
 
         return extension == ".svg" || contentType == "image/svg+xml";
@@ -103,9 +104,9 @@ public class ImagePostData(AppDbContext ctx, IWebHostEnvironment env)
 public class ImageConfig {
     private const double SmallScale = 0.5;
 
-    private (int width, int height) Banner = (1200, 400);
-    private (int width, int height) Normal = (800, 600);
-    private (int width, int height) Square = (300, 300);
+    private (int width, int height) Banner = (1200, 400); // 3:1
+    private (int width, int height) Normal = (800, 450); // 16:9
+    private (int width, int height) Square = (300, 300); // 1:1
 
     public (int width, int height) GetDimensions(ImageType type, bool isMobile = false)
     {

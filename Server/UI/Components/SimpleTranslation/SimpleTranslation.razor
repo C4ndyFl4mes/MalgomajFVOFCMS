@@ -1,0 +1,14 @@
+@inherits SimpleTranslationBase
+@using Server.UI.Components.TranslationField
+
+
+<div class="flex flex-col gap-2">
+    @if (Fields is not null)
+    {
+        @foreach (TranslationFieldModel field in Fields)
+        {
+            <TranslationField Field="@field" OnChangeField="HandleFieldChange" OnRemoveField="RemoveTranslation" />
+        }
+    }
+    <button type="button" @onclick="AddTranslation" class="cursor-pointer border py-1 rounded bg-slate-100 hover:brightness-95 active:brightness-90 duration-200">Lägg till ytterligare översättning</button>
+</div>

@@ -15,7 +15,7 @@ public class GetImagesEndpoint(AppDbContext ctx) : Endpoint<GetImagesRequest, Ge
     public override async Task<GetImagesResponse> ExecuteAsync(GetImagesRequest request, CancellationToken ct)
     {
         GetImagesData data = new(ctx, Resolve<IWebHostEnvironment>());
-        List<ImageModel> images = await data.GetAllImagesAsync(request.Types, ct);
-        return GetImagesMapper.ToResponse(images);
+
+        return await data.GetAllImagesAsync(request.Types, ct);
     }
 }

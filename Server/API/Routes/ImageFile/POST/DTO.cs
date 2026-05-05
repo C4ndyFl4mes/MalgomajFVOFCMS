@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FastEndpoints;
 using FluentValidation;
+using Microsoft.AspNetCore.Components.Forms;
 using Server.API.Enums;
 
 namespace Server.API.Routes.ImageFile.POST;
@@ -14,7 +15,7 @@ public record PostImageRequest
     public required Dictionary<string, string> Translations { get; set; } // Key: Language code, Value: Text.
 
     [Required]
-    public required IFormFile ImageFile { get; set; }
+    public required IBrowserFile ImageFile { get; set; }
 }
 
 public record PostImageResponse
@@ -47,11 +48,13 @@ public class PostImageRequestValidator : Validator<PostImageRequest>
         
         RuleFor(x => x)
             .Must(HasValidFileTypeForImageType)
-            .WithMessage("Ikoner måste laddas upp som SVG. Övriga bildtyper får inte vara SVG.");
+            .WithMessage("Endast SVG bilder är tillåtna för ikoner, och SVG bilder är inte tillåtna för andra bildtyper.")
+            .WithName("WrongFileTypeForImageType");
         
         RuleFor(x => x)
             .Must(AllowedFileTypes)
-            .WithMessage("Endast JPEG, PNG, WebP och SVG är tillåtna filtyper.");
+            .WithMessage("Endast JPEG, PNG, WebP och SVG är tillåtna filtyper.")
+            .WithName("InvalidFileType");
     }
 
     private static bool HasValidFileTypeForImageType(PostImageRequest request)
@@ -59,7 +62,7 @@ public class PostImageRequestValidator : Validator<PostImageRequest>
         if (!Enum.TryParse(request.Type, true, out ImageType imageType))
             return false;
         
-        string extension = Path.GetExtension(request.ImageFile.FileName).ToLowerInvariant();
+        string extension = Path.GetExtension(request.ImageFile.Name).ToLowerInvariant();
         string contentType = request.ImageFile.ContentType.ToLowerInvariant();
 
         bool isSvg = extension == ".svg" || contentType == "image/svg+xml";

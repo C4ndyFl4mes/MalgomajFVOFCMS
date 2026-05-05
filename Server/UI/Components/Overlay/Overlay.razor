@@ -1,0 +1,17 @@
+@inherits OverlayBase
+
+@namespace Server.UI.Components.Overlay
+
+@if (IsOpen)
+{
+    <div class="fixed inset-0 overlay-curtains transition-opacity overflow-y-auto z-50 py-10">
+        <div class="relative w-fit pt-5 mx-auto container rounded-2xl bg-white max-w-screen shadow-2xl">
+            <button @onclick="Close" class="absolute top-2 right-2 cursor-pointer">
+                <img src="/icons/close.svg" alt="Close" class="w-6 h-6" />
+            </button>
+            <div class="p-5">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}
