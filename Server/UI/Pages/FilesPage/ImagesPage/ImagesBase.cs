@@ -8,6 +8,7 @@ using FluentValidation.Results;
 using Server.API.Exceptions;
 using Server.API.Routes.ImageFile.GET;
 using Server.UI.Components.ImageTabs;
+using Server.UI.Components;
 
 namespace Server.UI.Pages.FilesPage.ImagesPage;
 
@@ -18,28 +19,26 @@ public class ImagesBase : ComponentBase
     [Inject]
     protected IValidator<PostImageRequest> PostImageValidator { get; set; } = default!;
     [Inject]
-    protected ImagePostData ImagePostData { get; set; } = default!;   
+    protected ImagePostData ImagePostData { get; set; } = default!;
 
-
+    protected ImageInspectionModel? ImageInspection { get; set; } = null;
 
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
     protected Dictionary<string, string[]> ValidationErrorsOfImageRetrieval
-    { 
+    {
         get;
         set
         {
-            Console.WriteLine("ValidationErrorsOfImageRetrieval updated:");
-            foreach (var kvp in value)            {
-                Console.WriteLine($"Field: {kvp.Key}, Errors: {string.Join(", ", kvp.Value)}");
-            }
             ValidationErrorsOfImageRetrievalDisplay = value;
         }
     } = [];
     protected Dictionary<string, string[]> ValidationErrorsOfImageRetrievalDisplay { get; set; } = [];
 
     protected (bool IsSuccess, string Message) ResultMessage { get; set; } = (false, string.Empty);
+
     protected bool IsNewImageOverlayOpen { get; set; } = false;
-    
+    protected bool IsImageInspectionOverlayOpen => ImageInspection is not null;
+
 
     protected IBrowserFile? NewImageFile { get; set; } = null;
     protected ImageType NewImageType { get; set; } = ImageType.Normal;
@@ -50,32 +49,15 @@ public class ImagesBase : ComponentBase
         ("Fyrkant (1:1)", ImageType.Square),
         ("Ikon (1:1)", ImageType.Icon)
     };
-    protected (ImageType, IEnumerable<ImageDTO>) ImagesOfSelectedTab { get;
-    set
-        {
-            Console.WriteLine($"ImagesOfSelectedTab updated: Type={value.Item1}, ImageCount={value.Item2.Count()}");
-            ImagesDisplayed = value;
-        }
-     } = (ImageType.Normal, []);
-
-    protected (ImageType, IEnumerable<ImageDTO>) ImagesDisplayed { get; set; } = (ImageType.Normal, []);
+    protected (ImageType, IEnumerable<ImageDTO>) ImagesOfSelectedTab { get; set; } = (ImageType.Normal, []);
 
     protected ImageTabs? ImageTabsRef { get; set; }
 
-    protected Dictionary<string, string> NewImageTranslations
+    protected Dictionary<string, string> NewImageTranslations { get; set; } = new()
     {
-        get => _newImageTranslations;
-        set
-        {
-            _newImageTranslations = value;
-            Console.WriteLine("NewImageTranslations updated:");
-            foreach (var kvp in _newImageTranslations)            {
-                Console.WriteLine($"LanguageCode: {kvp.Key}, Text: {kvp.Value}");
-            }
-        }
-    }
+        ["sv"] = string.Empty
+    };
 
-    private Dictionary<string, string> _newImageTranslations = new() { ["sv"] = string.Empty };
 
     // CSS-klasser för att bibehålla rätt bildförhållande i de olika tabbarna.
     protected Dictionary<ImageType, string> CSSClassesForImageType = new()
@@ -116,6 +98,7 @@ public class ImagesBase : ComponentBase
         ]);
     }
 
+    // Hanterar uppladdning av en ny bild: validerar, skickar till API:t och uppdaterar UI.
     protected async Task HandleAddNewImageAsync()
     {
         if (NewImageFile is not null)
@@ -160,8 +143,29 @@ public class ImagesBase : ComponentBase
             {
                 ResultMessage = (false, "Ett oväntat fel inträffade. Vänligen försök igen senare.");
             }
+            finally
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
 
-            await InvokeAsync(StateHasChanged);
+    protected void HandleImageClick(ImageDTO image, int width, int height)
+    {
+        ImageInspection = new ImageInspectionModel
+        {
+            Image = image,
+            Width = width,
+            Height = height
+        };
+    }
+
+    protected async Task UpdateUIAfterImageDeletion()
+    {
+        if (ImageInspection is not null && ImageTabsRef is not null)
+        {
+            ImageInspection = null;
+            await ImageTabsRef.ReloadActiveTab();
         }
     }
 

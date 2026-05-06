@@ -1,9 +1,7 @@
-using System.Security.Claims;
 using System.Text;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +9,13 @@ using Microsoft.IdentityModel.Tokens;
 using Server.API.Data;
 using Server.API.Exceptions;
 using Server.API.Models;
+using Server.API.Routes.ImageFile.DELETE;
 using Server.API.Routes.ImageFile.GET;
 using Server.API.Routes.ImageFile.POST;
+using Server.API.Routes.ImageFile.PUT;
 using Server.API.Routes.User.SignIn;
 using Server.UI;
 using Server.UI.Layout;
-using Server.UI.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -60,12 +59,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<NavigationState>();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddScoped<IValidator<SignInRequest>, SignInValidator>();
 builder.Services.AddScoped<IValidator<PostImageRequest>, PostImageRequestValidator>();
 builder.Services.AddScoped<IValidator<GetImagesRequest>, GetImagesRequestValidator>();
+builder.Services.AddScoped<IValidator<PutImageRequest>, PutImageRequestValidator>();
 
 builder.Services.AddScoped<ImagePostData>();
 builder.Services.AddScoped<GetImagesData>();
+builder.Services.AddScoped<ImagePutData>();
+builder.Services.AddScoped<DeleteImageData>();
 
 string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

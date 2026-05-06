@@ -17,7 +17,7 @@
 
 <div class="bg-slate-50 rounded-2xl shadow-lg mt-15">
     <ImageTabs @ref="ImageTabsRef" OnValidationErrors="@((v) => ValidationErrorsOfImageRetrieval = v)"
-               OnTabSelected="@((images) => { ImagesDisplayed = images; })" />
+               OnTabSelected="@((images) => { ImagesOfSelectedTab = images; })" />
     <div class="p-3 min-h-200">
         @if (ValidationErrorsOfImageRetrievalDisplay.Keys.Contains("Images"))
         {
@@ -30,30 +30,30 @@
         }
         else
         {
-            @if (!ImagesDisplayed.Item2.Any())
+            @if (!ImagesOfSelectedTab.Item2.Any())
             {
                 <p class="text-center text-gray-500 mt-4">Inga bilder att visa.</p>
             }
             else
             {
-                <div class="grid grid-cols-4 gap-4">
-                    @foreach (ImageDTO image in ImagesDisplayed.Item2)
+                <div class="grid grid-cols-4 gap-4"">
+                    @foreach (ImageDTO image in ImagesOfSelectedTab.Item2)
                     {
                         string basePath = $"/images/{image.Id}";
-                        var (width, height) = DimensionsForImageType[ImagesDisplayed.Item1];
+                        var (width, height) = DimensionsForImageType[ImagesOfSelectedTab.Item1];
                         string altText = image.Translations.TryGetValue("sv", out string? svAlt) &&
-            !string.IsNullOrWhiteSpace(svAlt)
+                        !string.IsNullOrWhiteSpace(svAlt)
                             ? svAlt
                             : "Bild";
 
-                        <picture>
+                        <picture class=" cursor-pointer" @onclick="() => HandleImageClick(image, width, height)">
                             <source media="max-width: 600px" type="image/webp" srcset="@($"{basePath}/webp/mobile.webp")" />
                             <source media="min-width: 601px" type="image/webp" srcset="@($"{basePath}/webp/desktop.webp")" />
                             <source media="max-width: 600px" srcset="@($"{basePath}/jpg/mobile.jpg")" />
                             <source media="min-width: 601px" srcset="@($"{basePath}/jpg/desktop.jpg")" />
-                            <img src="@($"{basePath}/jpg/desktop.jpg")" width="@width" height="@height" alt="@altText"
-                                 loading="lazy" decoding="async"
-                                 class="object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesDisplayed.Item1]" />
+                            <img src="@($"{basePath}/jpg/desktop.jpg")" width="@width" height="@height" alt="@altText" loading="lazy"
+                                 decoding="async"
+                                 class="object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesOfSelectedTab.Item1]" />
                         </picture>
                     }
                 </div>
@@ -62,12 +62,19 @@
     </div>
 </div>
 
+<Overlay IsOpen="@IsImageInspectionOverlayOpen" Changed="@((v) => { if (!v) ImageInspection = null; })">
+    @if (ImageInspection is not null)
+    {
+        <InspectImage ImageInspection="@ImageInspection" OnImageDeleted="UpdateUIAfterImageDeletion" />
+    }
+</Overlay>
+
 <Overlay IsOpen="@IsNewImageOverlayOpen"
          Changed="@((v) => { IsNewImageOverlayOpen = v; if (!v) ResetNewImageForm(); })">
     <div class="w-110 max-w-full">
         <h2 class="text-2xl mb-4">Bilduppladdning</h2>
         <table class="table-auto border-collapse mb-4 w-full bg-slate-100">
-            <caption class="text-xl">Bild Egenskaper</caption>
+            <caption class="text-xl text-left">Bild egenskaper</caption>
             <tr>
                 <td class="border p-1">Namn:</td>
                 <td class="border p-1">@(NewImageFile?.Name ?? "Ingen fil vald.")</td>
@@ -100,7 +107,7 @@
             </ul>
         }
         <form class="flex flex-col">
-            <h3 class="text-xl text-center">Propotioner</h3>
+            <h3 class="text-xl">Propotioner</h3>
             <div class="mb-4">
                 <label for="imageTypeSelect" class="mr-2">Bildtyp:</label>
                 <select id="imageTypeSelect" @bind="NewImageType" class="border rounded px-2 py-1 bg-slate-100">
@@ -128,7 +135,7 @@
                     </ul>
                 }
             </div>
-            <h3 class="text-xl text-center">Översättningar</h3>
+            <h3 class="text-xl">Översättningar</h3>
             <SimpleTranslation Translations="@NewImageTranslations"
                                TranslationsChanged="@((v) => NewImageTranslations = v)" />
             @if (ValidationErrors.Keys.Contains("translations"))

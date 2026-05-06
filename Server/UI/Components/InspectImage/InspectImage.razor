@@ -1,0 +1,95 @@
+@using Server.UI.Components.Overlay
+@using Server.UI.Components.SimpleTranslation
+@inherits InspectImageBase
+
+<div>
+    <h2 class="text-2xl mb-4">Inspektera bild</h2>
+    @{
+        string basePath = $"/images/{ImageInspection.Image.Id}";
+        string altText = ImageInspection.Image.Translations.TryGetValue("sv", out string? svAlt) &&
+        !string.IsNullOrWhiteSpace(svAlt)
+            ? svAlt
+            : "Bild";
+    }
+    <picture>
+        <source media="max-width: 600px" type="image/webp" srcset="@($"{basePath}/webp/mobile.webp")" />
+        <source media="min-width: 601px" type="image/webp" srcset="@($"{basePath}/webp/desktop.webp")" />
+        <source media="max-width: 600px" srcset="@($"{basePath}/jpg/mobile.jpg")" />
+        <source media="min-width: 601px" srcset="@($"{basePath}/jpg/desktop.jpg")" />
+        <img src="@($"{basePath}/jpg/desktop.jpg")" width="@ImageInspection.Width" height="@ImageInspection.Height"
+             alt="@altText" loading="lazy" decoding="async" class="object-cover rounded-lg shadow-md max-w-100 w-full" />
+    </picture>
+    <table class="table-auto border-collapse mb-4 w-full bg-slate-100">
+        <caption class="text-xl text-left">Bild egenskaper</caption>
+        <tr>
+            <td class="border p-1">ID:</td>
+            <td class="border p-1">@ImageInspection.Image.Id</td>
+        </tr>
+        <tr>
+            <td class="border p-1">Typ:</td>
+            <td class="border p-1">@ImageInspection.Image.Type (@ImageInspection.GetProportions())</td>
+        </tr>
+        <tr>
+            <td class="border p-1">Bredd:</td>
+            <td class="border p-1">Min: @(ImageInspection.Width / 2) px | Max: @ImageInspection.Width px</td>
+        </tr>
+        <tr>
+            <td class="border p-1">Höjd:</td>
+            <td class="border p-1">Min: @(ImageInspection.Height / 2) px | Max: @ImageInspection.Height px</td>
+        </tr>
+    </table>
+    
+    <form class="flex flex-col gap-4">
+        <h3 class="text-xl mb-2">Bildöversättningar</h3>
+        <SimpleTranslation Translations="ImageInspection.Image.Translations" />
+        @if (ValidationErrors.Keys.Contains("translations"))
+        {
+            <ul class="error">
+                @foreach (string error in ValidationErrors["translations"])
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        }
+        <div class="flex gap-4">
+            <button type="button" @onclick="() => IsDeleteConfirmationOpen = true"
+                    class="cursor-pointer bg-red-500 text-white px-3 py-1 rounded hover:brightness-95 active:brightness-90">
+                <img src="/icons/trash.svg" alt="Ta bort bild" class="w-5 h-5 mx-auto" />
+            </button>
+            <button type="button" @onclick="SaveChangesAsync"
+                    class="cursor-pointer flex-1 bg-green-500 px-3 py-1 rounded hover:brightness-95 active:brightness-90">
+                Spara ändringar
+            </button>
+        </div>
+        @if (ResultMessage.Message != string.Empty)
+        {
+            @if (ResultMessage.IsSuccess)
+            {
+                <div class="success">
+                    <span>@ResultMessage.Message</span>
+                </div>
+            }
+            else
+            {
+                <div class="error">
+                    <span>@ResultMessage.Message</span>
+                </div>
+            }
+        }
+    </form>
+</div>
+
+<Overlay IsOpen="IsDeleteConfirmationOpen" Changed="@((v) => IsDeleteConfirmationOpen = v)">
+    <div>
+        <h2 class="text-2xl mb-4">Bekräfta borttagning</h2>
+        <p>Är du säker på att du vill ta bort denna bild? Denna åtgärd kan inte ångras.</p>
+        <div class="flex gap-4 mt-4">
+            <button @onclick="DeleteImageAsync" class="cursor-pointer bg-red-500 text-white px-3 py-1 rounded hover:brightness-95 active:brightness-90">
+                Ja, ta bort
+            </button>
+            <button @onclick="() => IsDeleteConfirmationOpen = false" class="cursor-pointer bg-slate-100 px-3 py-1 rounded hover:brightness-95 active:brightness-90">
+                Avbryt
+            </button>
+        </div>
+    </div>
+</Overlay>

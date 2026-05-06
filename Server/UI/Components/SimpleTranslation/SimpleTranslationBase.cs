@@ -32,6 +32,7 @@ public class SimpleTranslationBase : ComponentBase
         if (field.OldLanguageCode != field.LanguageCode)
         {
             Translations.Remove(field.OldLanguageCode);
+            field.OldLanguageCode = field.LanguageCode;
         }
         Translations[field.LanguageCode] = field.Text;
         await TranslationsChanged.InvokeAsync(Translations);

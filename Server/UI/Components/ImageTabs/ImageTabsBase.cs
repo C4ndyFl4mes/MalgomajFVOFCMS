@@ -102,6 +102,15 @@ public class ImageTabsBase : ComponentBase
             await OnValidationErrors.InvokeAsync(ValidationErrors);
             return [];
         }
+        catch (Exception ex)
+        {
+            ValidationErrors = new Dictionary<string, string[]>
+            {
+                ["Images"] = [$"Ett fel inträffade: {ex.Message}"]
+            };
+            await OnValidationErrors.InvokeAsync(ValidationErrors);
+            return [];
+        }
     }
 
     private void ErrorsToDictionary(ValidationResult validationResult)
