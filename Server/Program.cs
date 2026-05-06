@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Server.API.Data;
 using Server.API.Exceptions;
 using Server.API.Models;
+using Server.API.Routes.ImageFile.GET;
 using Server.API.Routes.ImageFile.POST;
 using Server.API.Routes.User.SignIn;
 using Server.UI;
@@ -61,8 +62,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IValidator<SignInRequest>, SignInValidator>();
 builder.Services.AddScoped<IValidator<PostImageRequest>, PostImageRequestValidator>();
+builder.Services.AddScoped<IValidator<GetImagesRequest>, GetImagesRequestValidator>();
 
 builder.Services.AddScoped<ImagePostData>();
+builder.Services.AddScoped<GetImagesData>();
 
 string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -1,0 +1,11 @@
+@using Server.API.Enums
+@inherits ImageTabsBase
+
+<div class="w-full flex rounded-lg image-tabs-container">
+    @foreach ((ImageType type, string label) in ImageTabTypes)
+    {
+        <button class="flex-1 py-2 px-4 border-b-4 hover:brightness-95 active:brightness-90 duration-200 cursor-pointer bg-slate-100 @(CurrentTab == type ? "border-blue-500" : "border-transparent")" @onclick="() => SelectTab(type)">
+            @label
+        </button>
+    }
+</div>

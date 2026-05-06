@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Components.Forms;
 using FluentValidation;
 using FluentValidation.Results;
 using Server.API.Exceptions;
+using Server.API.Routes.ImageFile.GET;
+using Server.UI.Components.ImageTabs;
 
 namespace Server.UI.Pages.FilesPage.ImagesPage;
 
@@ -16,12 +18,29 @@ public class ImagesBase : ComponentBase
     [Inject]
     protected IValidator<PostImageRequest> PostImageValidator { get; set; } = default!;
     [Inject]
-    protected ImagePostData ImagePostData { get; set; } = default!;
+    protected ImagePostData ImagePostData { get; set; } = default!;   
+
+
 
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
+    protected Dictionary<string, string[]> ValidationErrorsOfImageRetrieval
+    { 
+        get;
+        set
+        {
+            Console.WriteLine("ValidationErrorsOfImageRetrieval updated:");
+            foreach (var kvp in value)            {
+                Console.WriteLine($"Field: {kvp.Key}, Errors: {string.Join(", ", kvp.Value)}");
+            }
+            ValidationErrorsOfImageRetrievalDisplay = value;
+        }
+    } = [];
+    protected Dictionary<string, string[]> ValidationErrorsOfImageRetrievalDisplay { get; set; } = [];
+
     protected (bool IsSuccess, string Message) ResultMessage { get; set; } = (false, string.Empty);
     protected bool IsNewImageOverlayOpen { get; set; } = false;
     
+
     protected IBrowserFile? NewImageFile { get; set; } = null;
     protected ImageType NewImageType { get; set; } = ImageType.Normal;
     protected List<(string, ImageType)> ImageTypes { get; set; } = new()
@@ -31,6 +50,17 @@ public class ImagesBase : ComponentBase
         ("Fyrkant (1:1)", ImageType.Square),
         ("Ikon (1:1)", ImageType.Icon)
     };
+    protected (ImageType, IEnumerable<ImageDTO>) ImagesOfSelectedTab { get;
+    set
+        {
+            Console.WriteLine($"ImagesOfSelectedTab updated: Type={value.Item1}, ImageCount={value.Item2.Count()}");
+            ImagesDisplayed = value;
+        }
+     } = (ImageType.Normal, []);
+
+    protected (ImageType, IEnumerable<ImageDTO>) ImagesDisplayed { get; set; } = (ImageType.Normal, []);
+
+    protected ImageTabs? ImageTabsRef { get; set; }
 
     protected Dictionary<string, string> NewImageTranslations
     {
@@ -46,6 +76,24 @@ public class ImagesBase : ComponentBase
     }
 
     private Dictionary<string, string> _newImageTranslations = new() { ["sv"] = string.Empty };
+
+    // CSS-klasser för att bibehålla rätt bildförhållande i de olika tabbarna.
+    protected Dictionary<ImageType, string> CSSClassesForImageType = new()
+    {
+        [ImageType.Normal] = "aspect-video",
+        [ImageType.Banner] = "aspect-[3/1]",
+        [ImageType.Square] = "aspect-square",
+        [ImageType.Icon] = "aspect-square"
+    };
+
+    // Dimensioner för de olika bildtyperna, används i attributen.
+    protected Dictionary<ImageType, (int, int)> DimensionsForImageType = new()
+    {
+        [ImageType.Normal] = (800, 450),
+        [ImageType.Banner] = (1200, 400),
+        [ImageType.Square] = (380, 380),
+        [ImageType.Icon] = (64, 64)
+    };
 
     protected override void OnInitialized()
     {
@@ -93,6 +141,12 @@ public class ImagesBase : ComponentBase
             {
                 await ImagePostData.PostImageAsync(request, CancellationToken.None);
                 ResultMessage = (true, "Bilden har laddats upp.");
+
+                // Ladda om bilderna i den aktiva tabben så att den nya bilden visas direkt.
+                if (ImageTabsRef is not null)
+                {
+                    await ImageTabsRef.ReloadActiveTab();
+                }
             }
             catch (BadRequestException ex)
             {

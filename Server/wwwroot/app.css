@@ -89,3 +89,10 @@ li:has(>a.active) {
 .overlay-curtains {
     background-color: #0c0c0c3b;
 }
+
+.image-tabs-container>button:first-child {
+    border-top-left-radius: 1rem;
+}
+.image-tabs-container>button:last-child {
+    border-top-right-radius: 1rem;
+}
