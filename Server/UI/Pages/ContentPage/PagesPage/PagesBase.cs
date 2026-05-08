@@ -8,6 +8,9 @@ public class PagesBase : ComponentBase
     [Inject]
     protected NavigationState NavigationState { get; set; } = default!;
 
+    protected Guid Id { get; set; } = Guid.NewGuid();
+    protected string Href { get; set; } = string.Empty; // Href för att navigera till editorn, kan sättas baserat på Id eller annan logik.
+
     protected override void OnInitialized()
     {
         NavigationState.SetBreadcrumbs([
@@ -27,5 +30,7 @@ public class PagesBase : ComponentBase
                 Href = "/admin/content/pages"
             }
         ]);
+
+        Href = $"/admin/content/pages/edit/{Id}"; 
     }
 }

@@ -1,5 +1,6 @@
 @inherits SimpleTranslationBase
 @using Server.UI.Components.TranslationField
+@using Server.UI.Components.TranslationTextarea
 
 
 <div class="flex flex-col gap-2">
@@ -7,8 +8,17 @@
     {
         @foreach (TranslationFieldModel field in Fields)
         {
-            <TranslationField Field="@field" OnChangeField="HandleFieldChange" OnRemoveField="RemoveTranslation" />
+            @if (UseTextArea)
+            {
+                <TranslationTextarea Field="@field" OnChangeField="HandleFieldChange" OnRemoveField="RemoveTranslation" />
+            }
+            else
+            {
+                <TranslationField Field="@field" OnChangeField="HandleFieldChange" OnRemoveField="RemoveTranslation" />
+            }
         }
     }
-    <button type="button" @onclick="AddTranslation" class="cursor-pointer border py-1 rounded bg-slate-100 hover:brightness-95 active:brightness-90 duration-200">Lägg till ytterligare översättning</button>
-</div>
+    <button type="button" @onclick="AddTranslation"
+            class="cursor-pointer border py-1 rounded @(UseTextArea ? "ms-15": "") bg-slate-100 hover:brightness-95 active:brightness-90 duration-200">Lägg
+        till ytterligare översättning</button>
+    </div>

@@ -16,9 +16,9 @@ public record PostPageRequest
 // Provides default values since autosaving can give partial data. The Model will still be strict and require all fields.
 public record PostTranslationContentPageDTO
 {
-    public string Title { get; set; } = "Untitled Page"; 
+    public string Title { get; set; } = "Namnlös sida"; 
     public string Content { get; set; } = string.Empty;
-    public string Slug { get; set; } = "untitled-page"; 
+    public string Slug { get; set; } = "namnlos-sida"; 
     public string MetaDescription { get; set; } = string.Empty;
     public string MetaKeywords { get; set; } = string.Empty;
 }

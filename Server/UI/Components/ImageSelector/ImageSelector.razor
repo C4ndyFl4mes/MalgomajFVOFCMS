@@ -1,0 +1,40 @@
+@using Server.API.Routes.ImageFile.GET
+@using Server.UI.Components.ImageTabs
+@inherits ImageSelectorBase
+
+<div>
+    <ImageTabs OnTabSelected="(images) => { ImagesOfSelectedTab = images; StateHasChanged(); }" />
+    @if (ValidationErrorsOfImageRetrieval.Keys.Contains("Images"))
+    {
+        <div class="validation-errors">
+            @foreach (var error in ValidationErrorsOfImageRetrieval["Images"])
+            {
+                <p>@error</p>
+            }
+        </div>
+    }
+    else if (ImagesOfSelectedTab.Item2.Any())
+    {
+        <div class="grid grid-cols-4 gap-4"">
+            @foreach (ImageDTO image in ImagesOfSelectedTab.Item2)
+            {
+                string basePath = $"/images/{image.Id}";
+                var (width, height) = DimensionsForImageType[ImagesOfSelectedTab.Item1];
+                string altText = image.Translations.TryGetValue("sv", out string? svAlt) &&
+                !string.IsNullOrWhiteSpace(svAlt)
+                    ? svAlt
+                    : "Bild";
+
+                <picture class=" cursor-pointer" @onclick="() => SelectImage(image, width, height)">
+                    <source media="max-width: 600px" type="image/webp" srcset="@($"{basePath}/webp/mobile.webp")" />
+                    <source media="min-width: 601px" type="image/webp" srcset="@($"{basePath}/webp/desktop.webp")" />
+                    <source media="max-width: 600px" srcset="@($"{basePath}/jpg/mobile.jpg")" />
+                    <source media="min-width: 601px" srcset="@($"{basePath}/jpg/desktop.jpg")" />
+                    <img src="@($"{basePath}/jpg/desktop.jpg")" width="@width" height="@height" alt="@altText" loading="lazy"
+                         decoding="async"
+                         class="object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesOfSelectedTab.Item1]" />
+                </picture>
+            }
+        </div>
+    }
+</div>

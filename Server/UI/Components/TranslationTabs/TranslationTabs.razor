@@ -1,0 +1,48 @@
+@inherits TranslationTabsBase
+@using Server.UI.Components.QuillEditor
+<div class="flex flex-col gap-4">
+    <div class="flex flex-wrap gap-2">
+        @foreach (TabModel tab in Tabs)
+        {
+            <div class="flex rounded-md overflow-hidden @(tab == ActiveTab ? "border" : "")">
+                <button type="button" class="cursor-pointer py-1 px-5 hover:brightness-95 active:brightness-90
+                    duration-200 @(tab == ActiveTab ? "bg-blue-500 text-white py-0 px-4" : "bg-slate-400")" @onclick="() => SelectTab(tab)">
+                    @GetTabLabel(tab)
+                </button>
+                @if (!IsProtected(tab))
+                {
+                    <button type="button"
+                            class="cursor-pointer bg-red-500 @(tab == ActiveTab ? "py-1 px-2" : "py-0 px-1") flex justify-center items-center hover:brightness-95 active:brightness-90 duration-200"
+                            @onclick="() => RemoveTranslationsAsync(tab)">
+                        <img src="/icons/remove.svg" alt="Remove" width="30" height="30" class="w-5 h-5" />
+                    </button>
+                }
+            </div>
+        }
+        <button type="button"
+                class="cursor-pointer border py-1 px-3 rounded bg-slate-100 hover:brightness-95 active:brightness-90 duration-200"
+                @onclick="AddTranslation">
+            Lägg till översättning
+        </button>
+        @if (ActiveTab is not null)
+        {
+            <div class="flex gap-2 items-center">
+                <label for="languageCode">Språkkod:</label>
+                <input id="languageCode" type="text" maxlength="2" @bind="ActiveTab.LanguageCode" @bind:event="oninput"
+                       @bind:after="@(async () => await OnLanguageChangedAsync(ActiveTab))" disabled="@IsProtected(ActiveTab)"
+                       class="bg-slate-100 border rounded px-2 py-1 w-14 text-center" />
+            </div>
+        }
+    </div>
+
+    
+    @if (ActiveTab is not null && ActiveTabCanRenderEditor())
+    {
+        <QuillEditor @key="ActiveTab.EditorId" EditorId="@GetActiveEditorId()" LanguageCode="@GetActiveLanguageCode()"
+                     Content="@GetActiveContent()" ContentChanged="@OnContentChangedAsync" />
+    }
+    else
+    {
+        <p class="text-red-500">Ange en språkkod med 2 tecken för att börja redigera innehåll.</p>
+    }
+</div>

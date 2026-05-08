@@ -12,7 +12,7 @@ public class PostPageData(AppDbContext ctx)
             PostPageMapper.ToModel(request, new Guid()) :
             PostPageMapper.ToModel(request, request.Id.Value);
 
-        if (await ctx.Pages.AnyAsync(page => page.Id == incomingPage.Id))
+        if (await ctx.Pages.AnyAsync(page => page.Id == incomingPage.Id, cancellationToken: ct))
         {
             PageModel currentPage = await ctx.Pages.Include(page => page.Translations).FirstOrDefaultAsync(page => page.Id == incomingPage.Id, ct)
                 ?? throw new KeyNotFoundException("Sidan kunde inte hittas.");

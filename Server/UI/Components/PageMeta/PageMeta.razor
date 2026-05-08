@@ -1,0 +1,58 @@
+@inherits PageMetaBase
+@using Server.API.Enums
+@using Server.UI.Components.SimpleTranslation
+@using Server.UI.Components.CustomCheckbox
+
+<div>
+    <form class="flex flex-wrap justify-between gap-4">
+        <fieldset class="flex flex-col p-4 flex-1">
+            <legend class="text-xl">Metadata</legend>
+            <div class="flex flex-wrap gap-4">
+                <div class="flex flex-col flex-3">
+                    <h3 class="text-lg">Titel</h3>
+                    <SimpleTranslation Translations="Meta.Title" TranslationsChanged="HandleMetaChange" />
+                    @if (ValidationErrors.Keys.Contains("slug"))
+                    {
+                        <ul class="error">
+                            @foreach (string error in ValidationErrors["slug"])
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <div class="flex flex-col flex-2">
+                    <h3 class="text-lg">Nyckelord</h3>
+                    <SimpleTranslation Translations="Meta.Keywords" TranslationsChanged="HandleMetaChange" />
+                </div>
+                <div class="flex flex-col w-full">
+                    <h3 class="text-lg">Beskrivning</h3>
+                    <SimpleTranslation UseTextArea="true" Translations="Meta.Description"
+                                       TranslationsChanged="HandleMetaChange" />
+                </div>
+            </div>
+        </fieldset>
+        <div class="flex flex-col flex-1 max-w-80 bg-slate-50 p-4">
+            <fieldset class="flex flex-col">
+                <legend class="text-lg">Övrigt</legend>
+                <div class="flex items-center gap-2">
+                    <label for="articleCheckbox">Är en artikel?</label>
+                    <CustomCheckbox Id="articleCheckbox" Value="Meta.Type == PageType.Article"
+                                    ValueChanged="@(async v => { Meta.Type = v ? PageType.Article : PageType.Page; await HandleMetaChange(); })" />
+                </div>
+            </fieldset>
+            <fieldset class="flex flex-col mt-auto">
+                <legend class="text-lg">Kontroller</legend>
+                <div class="flex gap-x-1">
+                    <button type="button" class="bg-blue-500 text-white py-1 px-4 rounded flex-1 cursor-pointer hover:brightness-95 active:brightness-90 duration-200"
+                            @onclick="@(async () => await HandlePublishToggleAsync())">
+                        @(Meta.IsPublished ? "Tillbaka till utkast" : "Publicera")
+                    </button>
+                    <button type="button" class="bg-red-500 text-white py-1 px-4 rounded cursor-pointer hover:brightness-95 active:brightness-90 duration-200">
+                        <img src="/icons/trash.svg" alt="Släng i papperskorgen" class="w-5 h-5" />
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+    </form>
+</div>

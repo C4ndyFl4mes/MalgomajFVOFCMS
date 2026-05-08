@@ -1,21 +1,25 @@
 @inherits TranslationFieldBase
 
-<div class="flex">
+<div class="flex gap-x-1">
     <div class="flex flex-col">
         <label for="@LanguageCodeFieldId" class="hidden">Språkkod:</label>
-        <input type="text" maxlength="2" id="@LanguageCodeFieldId" name="@LanguageCodeFieldId" @bind="@Field.LanguageCode" @bind:event="oninput" @bind:after="@(async () => { if (!ProtectedLanguageCode) await OnChangeField.InvokeAsync(Field); })"
-        class="bg-slate-100 border rounded px-2 py-1 w-14 text-center"
-        />
+        <input type="text" maxlength="2" id="@LanguageCodeFieldId" name="@LanguageCodeFieldId"
+               @bind="@Field.LanguageCode" @bind:event="oninput"
+               @bind:after="@(async () => { if (!ProtectedLanguageCode) await OnChangeField.InvokeAsync(Field); })"
+               class="bg-slate-100 border rounded px-2 py-1 w-14 text-center"
+               disabled="@ProtectedLanguageCode" />
     </div>
     <div class="flex flex-col flex-1">
         <label for="@TextFieldId" class="hidden">Text:</label>
-        <input type="text" id="@TextFieldId" name="@TextFieldId" @bind="@Field.Text" @bind:event="oninput" @bind:after="@(async () => await OnChangeField.InvokeAsync(Field))"
-        class="bg-slate-100 border @RoundedClass px-2 py-1"
-        />
+        <input type="text" id="@TextFieldId" name="@TextFieldId" @bind="@Field.Text" @bind:event="oninput"
+               @bind:after="@(async () => await OnChangeField.InvokeAsync(Field))"
+               class="bg-slate-100 border @RoundedClass px-2 py-1" />
     </div>
     @if (!ProtectedLanguageCode)
     {
-        <button type="button" class="cursor-pointer bg-red-500 text-white rounded-r w-8 flex justify-center items-center hover:brightness-95 active:brightness-90 duration-200" @onclick="@(async () => await OnRemoveField.InvokeAsync(Field))">
+        <button type="button"
+                class="cursor-pointer bg-red-500 text-white rounded-r w-8 flex justify-center items-center hover:brightness-95 active:brightness-90 duration-200"
+                @onclick="@(async () => await OnRemoveField.InvokeAsync(Field))">
             <img src="/icons/remove.svg" alt="Remove" class="w-5 h-5" />
         </button>
     }

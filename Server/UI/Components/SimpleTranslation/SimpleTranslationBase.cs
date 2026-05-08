@@ -9,6 +9,8 @@ public class SimpleTranslationBase : ComponentBase
 
     [Parameter]
     public EventCallback<Dictionary<string, string>> TranslationsChanged { get; set; }
+    [Parameter]
+    public bool UseTextArea { get; set; } = false;
 
     protected List<TranslationFieldModel> Fields { get; set; } = [];
 

@@ -96,3 +96,45 @@ li:has(>a.active) {
 .image-tabs-container>button:last-child {
     border-top-right-radius: 1rem;
 }
+
+
+/* Quill image resizing and alignment styles */
+/* Alignment wrappers — use formatter's own flex approach */
+div.ql-editor [class^="ql-image-align-"] {
+    display: flex;
+    flex-wrap: wrap;
+    width: var(--resize-width);   /* actual size set by formatter */
+    max-width: 100%;              /* never overflow editor */
+}
+
+div.ql-editor [class^="ql-image-align-"] > img {
+    flex: 1 1 auto;               /* fills the span naturally */
+    max-height: 32rem;            /* your max-height constraint */
+    object-fit: contain;
+    height: auto;
+    z-index: 1;
+}
+
+/* Float so text wraps around left/right aligned images */
+div.ql-editor .ql-image-align-left {
+    float: left;
+    margin: 0.5rem 1rem 0.5rem 0;
+}
+
+div.ql-editor .ql-image-align-right {
+    float: right;
+    margin: 0.5rem 0 0.5rem 1rem;
+}
+
+div.ql-editor .ql-image-align-center {
+    float: none;
+    display: block;
+    margin: 1rem auto;
+}
+
+/* Safety for non-aligned images */
+div.ql-editor img {
+    max-width: 100%;
+    height: auto;
+    max-height: 32rem;
+}
