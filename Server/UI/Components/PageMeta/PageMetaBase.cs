@@ -7,7 +7,7 @@ using Server.API.Routes.Page.GET.List;
 
 namespace Server.UI.Components.PageMeta;
 
-public class PageMetaBase : ComponentBase
+public class PageMetaBase : ComponentBase, IDisposable
 {
     [Inject]
     protected GetPageListData GetPageListData { get; set; } = default!;
@@ -16,8 +16,30 @@ public class PageMetaBase : ComponentBase
     public required PageMetaModel Meta { get; set; } = default!;
     [Parameter]
     public EventCallback<PageMetaModel> MetaChanged { get; set; }
+    [Parameter]
+    public bool IsPublishing { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> OnPublish { get; set; }
+    [Parameter]
+    public bool IsUnpublishing { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> OnUnpublish { get; set; }
+
 
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
+    
+
+    private CancellationTokenSource? _cts = null;
+
+    public async Task StopPublishing()
+    {
+        await HandleOnPublish();
+    }
+
+    public async Task StopRedacting()
+    {
+        await HandleOnUnpublish();
+    }
 
     protected async Task HandleMetaChange()
     {
@@ -25,11 +47,43 @@ public class PageMetaBase : ComponentBase
         await MetaChanged.InvokeAsync(Meta);
     }
 
+    protected async Task HandleOnPublish()
+    {
+        IsPublishing = !IsPublishing;
+        await OnPublish.InvokeAsync(IsPublishing);
+    }
+
+    protected async Task HandleOnUnpublish()
+    {
+        IsUnpublishing = !IsUnpublishing;
+        await OnUnpublish.InvokeAsync(IsUnpublishing);
+    }
+
     protected async Task HandlePublishToggleAsync()
     {
+        if (!Meta.IsPublished)
+            await HandleOnPublish();
+        if (Meta.IsPublished)
+            await HandleOnUnpublish();
+
+        CancellationTokenSource nextCts = new();
+        CancellationTokenSource? previousCts = Interlocked.Exchange(ref _cts, nextCts);
+        previousCts?.Cancel();
+        previousCts?.Dispose();
+
         try
         {
             List<PageModel> pages = await GetPageListData.GetPageListAsync(CancellationToken.None);
+
+            if (nextCts.IsCancellationRequested)
+            {
+                if (!Meta.IsPublished)
+                    await HandleOnPublish();
+                if (Meta.IsPublished)
+                    await HandleOnUnpublish();
+                    
+                return;
+            }
 
             if (Meta.IsPublished)
             {
@@ -48,10 +102,15 @@ public class PageMetaBase : ComponentBase
                 Meta.IsPublished = true;
                 ValidationErrors.Remove("slug");
             }
+            await HandleMetaChange();
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Page list loading was canceled.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ett fel uppstod vid hämtning av sidlistan: {ex.Message}");
+            ValidationErrors["pageList"] = [$"Kunde inte läsa in alla sidor: {ex.Message}"];
         }
     }
 
@@ -100,5 +159,12 @@ public class PageMetaBase : ComponentBase
             }
         }
         return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    public void Dispose()
+    {
+        CancellationTokenSource? cts = Interlocked.Exchange(ref _cts, null);
+        cts?.Cancel();
+        cts?.Dispose();
     }
 }

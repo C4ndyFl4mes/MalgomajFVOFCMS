@@ -7,6 +7,7 @@ using Server.UI.Components;
 using Server.UI.Layout;
 using Ganss.Xss;
 using Server.API.Routes.Page.POST;
+using Server.UI.Components.PageMeta;
 
 namespace Server.UI.Pages.ContentPage.PagesPage.PageEditorPage;
 
@@ -27,6 +28,11 @@ public class PageEditorPageBase : ComponentBase, IDisposable
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
     protected GetImagesResponse? ResponseCache { get; set; } = null; // Cache för att undvika onödiga API-anrop.
     protected HtmlSanitizer HtmlSanitizer { get; set; } = new();
+    protected bool IsPublishing { get; set; } = false;
+    protected bool IsUnpublishing { get; set; } = false;
+    protected bool IsSaving { get; set; } = false;
+    protected PageMeta? PageMetaRef { get; set; }
+    protected DateTime? LocalSavedAt { get; set; } = null;
 
     // Debounce- och versionshantering för att optimera sparandet av sidan när flera förändringar sker i snabb följd.
     private static readonly TimeSpan SaveDebounceDelay = TimeSpan.FromSeconds(2);
@@ -199,6 +205,8 @@ public class PageEditorPageBase : ComponentBase, IDisposable
         previous?.Cancel();
         previous?.Dispose();
 
+        IsSaving = true;
+
         _ = DebounceThenSaveAsync(next.Token);
     }
 
@@ -240,11 +248,24 @@ public class PageEditorPageBase : ComponentBase, IDisposable
         }
         catch (Exception ex)
         {
-            ValidationErrors["save"] = new[] { $"Det gick inte att spara sidan: {ex.Message}" };
+            ValidationErrors["save"] = [$"Det gick inte att spara sidan: {ex.Message}"];
         }
         finally
         {
+            if (PageMetaRef is not null)
+            {
+                if (IsPublishing)
+                    await PageMetaRef.StopPublishing();
+
+                if (IsUnpublishing)
+                    await PageMetaRef.StopRedacting();
+            }
+            
             SaveLock.Release();
+
+            IsSaving = false;
+            LocalSavedAt = DateTime.UtcNow;
+            await InvokeAsync(StateHasChanged);
         }
 
         if (Volatile.Read(ref ChangeVersion) > Volatile.Read(ref SavedVersion))

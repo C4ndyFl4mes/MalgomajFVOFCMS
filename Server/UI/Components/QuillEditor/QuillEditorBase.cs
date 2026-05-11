@@ -41,7 +41,6 @@ public class QuillEditorBase : ComponentBase
     {
         Content = content;
         await ContentChanged.InvokeAsync((EditorId, content));
-        Console.WriteLine($"Content updated: {content}");
     }
 
     [JSInvokable]

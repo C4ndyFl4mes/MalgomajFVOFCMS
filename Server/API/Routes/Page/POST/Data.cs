@@ -1,6 +1,7 @@
 using Server.API.Models;
 using Server.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Server.API.Routes.Page.POST;
 
@@ -8,6 +9,8 @@ public class PostPageData(AppDbContext ctx)
 {
     public async Task<PageModel> SavePageAsync(PostPageRequest request, CancellationToken ct)
     {
+        IDbContextTransaction transaction = await ctx.Database.BeginTransactionAsync(ct);
+
         PageModel incomingPage = !request.Id.HasValue ?
             PostPageMapper.ToModel(request, new Guid()) :
             PostPageMapper.ToModel(request, request.Id.Value);
@@ -24,7 +27,7 @@ public class PostPageData(AppDbContext ctx)
                 currentPage.PublishedAt = DateTime.UtcNow;
             }
 
-            // If a page is unpublished, we should clear the PublishedAt and UpdatedAt fields, and set IsPublished to false.
+            // Om en sida inte är publicerad sätts följande till null eller false.
             if (!incomingPage.IsPublished)
             {
                 currentPage.PublishedAt = null;
@@ -32,7 +35,7 @@ public class PostPageData(AppDbContext ctx)
                 currentPage.IsPublished = false;
             }
 
-            // Updating translations by clearing and re-adding them.
+            // Ändrar översättningar med att rensa och därefter lägga till de nya.
             ctx.PageTranslations.RemoveRange(currentPage.Translations);
             currentPage.Translations.Clear();
 
@@ -63,6 +66,7 @@ public class PostPageData(AppDbContext ctx)
             await ctx.SaveChangesAsync(ct);
         }
 
+        await transaction.CommitAsync(ct);
         return incomingPage;
     }
 }
