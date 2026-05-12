@@ -25,23 +25,31 @@ public record PostMenuResponse
 
 public class PostMenuRequestValidator : Validator<PostMenuRequest>
 {
+    private const int MaxDepth = 3;
     public PostMenuRequestValidator()
     {
         RuleFor(x => x.MenuItems)
-            .Must(EnsureOrderIsUnique)
-            .WithMessage("Ordningen måste vara unik.");
+            .Must(HaveUniqueSortOrdersAtEveryLevel)
+            .WithMessage("Ordningen måste vara unik för varje nivå i menyn.");
 
-        RuleForEach(x => x.MenuItems).ChildRules(parent =>
-        {
-            parent.RuleFor(x => x.Children)
-                .Must(EnsureOrderIsUnique)
-                .WithMessage("Ordningen för undermenyalternativ måste vara unik.");
-        });
+        RuleFor(x => x.MenuItems)
+            .Must(items => GetMaxDepth(items) <= MaxDepth)
+            .WithMessage($"Menyn får maximalt ha {MaxDepth} nivåer.");
     }
 
-    private bool EnsureOrderIsUnique(List<PostMenuItemDTO> menuItems)
+    private static bool HaveUniqueSortOrdersAtEveryLevel(List<PostMenuItemDTO> items)
     {
-        List<int> sortOrders = menuItems.Select(s => s.SortOrder).ToList();
-        return sortOrders.Distinct().Count() == sortOrders.Count;
+        if (items.GroupBy(x => x.SortOrder).Any(g => g.Count() > 1))
+            return false;
+        
+        return items.All(item => HaveUniqueSortOrdersAtEveryLevel(item.Children));
+    }
+
+    private static int GetMaxDepth(List<PostMenuItemDTO> items, int depth = 1)
+    {
+        if (items.Count == 0)
+            return depth - 1;
+        
+        return items.Max(item => GetMaxDepth(item.Children, depth + 1));
     }
 }

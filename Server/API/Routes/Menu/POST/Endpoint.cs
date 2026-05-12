@@ -15,11 +15,6 @@ public class PostMenuEndpoint(AppDbContext ctx) : Endpoint<PostMenuRequest, Post
     {
         PostMenuData data = new(ctx);
 
-        await data.PostMenuAsync(request, ct);
-
-        return new PostMenuResponse
-        {
-            Message = "Lyckades spara huvudmenyn."
-        };
+        return await data.PostMenuAsync(request, ct);
     }
 }

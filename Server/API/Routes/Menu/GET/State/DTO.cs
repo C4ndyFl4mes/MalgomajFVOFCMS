@@ -9,7 +9,6 @@ public record GetMenuStateResponse
 public record MenuItemDTO
 {
     public required Guid MenuItemId { get; set; }
-    // public Guid? ParentId { get; set; }
     public Guid? IconId { get; set; }
     public required int SortOrder { get; set; }
     public string? CustomUrl { get; set; }

@@ -8,7 +8,7 @@ public class ImagePutData(AppDbContext ctx)
 {
     public async Task<PutImageResponse> UpdateImageAsync(PutImageRequest request, CancellationToken ct)
     {
-        IDbContextTransaction transaction = await ctx.Database.BeginTransactionAsync(ct);
+        await using IDbContextTransaction transaction = await ctx.Database.BeginTransactionAsync(ct);
 
         ImageModel image = await ctx.Images.FindAsync([request.Id], ct) ??
             throw new KeyNotFoundException($"Ingen bild hittades med ID: {request.Id}");

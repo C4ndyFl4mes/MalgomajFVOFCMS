@@ -1,6 +1,101 @@
 @page "/admin/content/menu"
 @inherits MenuBase
+@using Server.API.Routes.Menu.GET.State
+@rendermode InteractiveServer
 
 <PageTitle>Meny</PageTitle>
 
 <h1 class="text-3xl">Meny</h1>
+
+<div class="p-5 shadow-lg rounded-2xl">
+    @if (MenuState is null)
+    {
+        @if (string.IsNullOrWhiteSpace(ResultMessage.Message))
+        {
+            <p class="text-center">Laddar meny...</p>
+        }
+        else if (!ResultMessage.IsSuccess)
+        {
+            <p class="error text-center">@ResultMessage.Message</p>
+        }
+    }
+    else
+    {
+        <div class="flex flex-col gap-4">
+            <div id="menu-editor-root" class="flex gap-x-4">
+                <section class="border border-slate-300 bg-white rounded-xl p-4 shadow-sm flex-2">
+                    <h2 class="font-semibold mb-3 text-slate-800">Inte i menyn</h2>
+                    <ul id="not-in-menu-list" class="space-y-2 min-h-24">
+                        @foreach (SimplePageInformationDTO page in MenuState.NotInMenu)
+                        {
+                            <li @key="page.PageId" class="tree-node" data-id="@(page.PageId)">
+                                <div
+                                    class="node-row flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2">
+                                    <span
+                                    class="drag-handle cursor-grab select-none rounded bg-slate-200 px-2 py-0.5 text-slate-600 font-bold"
+                                    title="Dra">::</span>
+                                    <span class="node-label text-sm text-slate-800">@(page.Title)</span>
+                                </div>
+                                <ul class="tree-children"></ul>
+                            </li>
+                        }
+                    </ul>
+                </section>
+                <section class="border border-slate-300 bg-white rounded-xl p-4 shadow-sm flex-3">
+                    <h2 class="font-semibold mb-3 text-slate-800">I menyn</h2>
+                    <ul id="in-menu-tree" class="tree-children space-y-2">
+                        @foreach (MenuItemDTO item in MenuState.InMenu)
+                        {
+                            @RenderInMenuItem(item, 0)
+                        }
+                    </ul>
+                </section>
+            </div>
+            <div class="flex flex-col gap-2 mx-auto w-100">
+                <button
+                class="mx-auto cursor-pointer px-3 py-1.5 rounded-lg border border-slate-400 bg-slate-100 text-sm font-medium text-slate-800 hover:brightness-95 active:brightness-90"
+                @onclick="SaveMenuStateAsync">Spara meny</button>
+                @if (ValidationErrors.Keys.Contains("menuItems"))
+                {
+                    <small class="error text-sm">@ValidationErrors["menuItems"][0]</small>
+                } else if (!string.IsNullOrWhiteSpace(ResultMessage.Message))
+                {
+                    @if (ResultMessage.IsSuccess)
+                    {
+                        <div class="success text-center">
+                            <span>@ResultMessage.Message</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="error text-center">
+                            <span>@ResultMessage.Message</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    private RenderFragment RenderInMenuItem(MenuItemDTO item, int level) => @<li @key="item.PageInfo.PageId"
+                                                                                 class="tree-node" data-id="@item.PageInfo.PageId" data-menu-item-id="@item.MenuItemId">
+        <div class="node-row flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 shadow-sm bg-slate-50">
+            <span class="drag-handle cursor-grab select-none rounded bg-slate-200 px-2 py-0.5 text-slate-600 font-bold"
+                  title="Dra">::</span>
+            <span class="node-label text-sm text-slate-800">@(item.PageInfo.Title)</span>
+        </div>
+        <ul class="@GetChildrenContainerClasses(level)">
+            @foreach (MenuItemDTO child in item.Children)
+            {
+                @RenderInMenuItem(child, level + 1)
+            }
+        </ul>
+    </li>;
+
+    private static string GetChildrenContainerClasses(int level)
+        => "tree-children mt-2 ml-3 pl-3 border-l-2 border-slate-300 space-y-2 min-h-5";
+    
+}

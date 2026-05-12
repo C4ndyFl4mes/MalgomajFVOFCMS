@@ -9,7 +9,7 @@ public class PostPageData(AppDbContext ctx)
 {
     public async Task<PageModel> SavePageAsync(PostPageRequest request, CancellationToken ct)
     {
-        IDbContextTransaction transaction = await ctx.Database.BeginTransactionAsync(ct);
+        await using IDbContextTransaction transaction = await ctx.Database.BeginTransactionAsync(ct);
 
         PageModel incomingPage = !request.Id.HasValue ?
             PostPageMapper.ToModel(request, new Guid()) :

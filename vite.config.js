@@ -6,13 +6,18 @@ export default defineConfig({
         emptyOutdir: false,
         outDir: path.resolve(__dirname, "Server/wwwroot/js"),
         lib: {
-            entry: path.resolve(__dirname, "Server/wwwroot/QuillEditor/main.editor.js"),
+            entry: {
+                editor: path.resolve(__dirname, "Server/wwwroot/QuillEditor/main.editor.js"),
+                treeviewer: path.resolve(__dirname, "Server/wwwroot/SortableJSTreeViewer/main.treeviewer.js")
+            },
             formats: ["es"],
-            fileName: () => "editor.bundle.js"
+            fileName: (format, entryName) => `${entryName}.bundle.js`
         },
         rolldownOptions: {
             output: {
-                codeSplitting: false
+                entryFileNames: "[name].bundle.js",
+                chunkFileNames: "[name].bundle.js",
+                assetFileNames: "[name].[ext]"
             }
         }
     }

@@ -69,3 +69,11 @@ public record TabModel
     public required string Content { get; set; }
     public required Guid EditorId { get; set; }
 }
+
+public record MenuTreeNode
+{
+    public string Id { get; init; } = string.Empty;
+    public string MenuItemId { get; init; } = string.Empty;
+    public string Label { get; init; } = string.Empty;
+    public List<MenuTreeNode> Children { get; init; } = [];
+}

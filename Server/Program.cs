@@ -13,6 +13,8 @@ using Server.API.Routes.ImageFile.DELETE;
 using Server.API.Routes.ImageFile.GET;
 using Server.API.Routes.ImageFile.POST;
 using Server.API.Routes.ImageFile.PUT;
+using Server.API.Routes.Menu.GET.State;
+using Server.API.Routes.Menu.POST;
 using Server.API.Routes.Page.GET.Editor;
 using Server.API.Routes.Page.GET.List;
 using Server.API.Routes.Page.POST;
@@ -67,6 +69,7 @@ builder.Services.AddScoped<IValidator<SignInRequest>, SignInValidator>();
 builder.Services.AddScoped<IValidator<PostImageRequest>, PostImageRequestValidator>();
 builder.Services.AddScoped<IValidator<GetImagesRequest>, GetImagesRequestValidator>();
 builder.Services.AddScoped<IValidator<PutImageRequest>, PutImageRequestValidator>();
+builder.Services.AddScoped<IValidator<PostMenuRequest>, PostMenuRequestValidator>();
 
 builder.Services.AddScoped<ImagePostData>();
 builder.Services.AddScoped<GetImagesData>();
@@ -75,6 +78,8 @@ builder.Services.AddScoped<DeleteImageData>();
 builder.Services.AddScoped<GetPageEditorData>();
 builder.Services.AddScoped<PostPageData>();
 builder.Services.AddScoped<GetPageListData>();
+builder.Services.AddScoped<GetMenuStateData>();
+builder.Services.AddScoped<PostMenuData>();
 
 string secretKey = builder.Configuration["secret_key.txt"] ?? throw new InvalidOperationException("Secret key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
