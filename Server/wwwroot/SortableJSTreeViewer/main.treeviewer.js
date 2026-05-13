@@ -10,20 +10,28 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
 
     const root = document.getElementById(rootId);
     if (!root)
-        return;
+        return { instanceId: "" };
 
     const notInMenuList = root.querySelector("#not-in-menu-list");
     const inMenuTree = root.querySelector("#in-menu-tree");
     if (!notInMenuList || !inMenuTree)
-        return;
+        return { instanceId: "" };
 
-    const treeSortables = [];
+    const instance = {
+        type: "menu",
+        rootId,
+        dotNetRef,
+        instanceId: (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`),
+        disposed: false,
+        notInMenuSortable: null,
+        sortables: []
+    };
 
     let isNotifying = false;
     let pendingNotify = false;
 
     const notifyMenuChange = async () => {
-        if (!dotNetRef)
+        if (!dotNetRef || instance.disposed)
             return;
     
         if (isNotifying) {
@@ -32,13 +40,22 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
         }
 
         isNotifying = true;
-
         try {
             do {
                 pendingNotify = false;
+
+                if (instance.disposed)
+                    break;
+
                 const inMenu = readContainer(inMenuTree);
-                await dotNetRef.invokeMethodAsync("OnMenuChanged", JSON.stringify(inMenu));
-            } while (pendingNotify)
+                await dotNetRef.invokeMethodAsync(
+                    "OnMenuChanged",
+                    JSON.stringify({
+                        instanceId: instance.instanceId,
+                        tree: inMenu
+                    })
+                );
+            } while (pendingNotify);
         } finally {
             isNotifying = false;
         }
@@ -107,6 +124,8 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
             fallbackOnBody: true,
             swapThreshold: 0.65,
             emptyInsertThreshold: 30,
+            filter: ".menu-action",
+            preventOnFilter: false,
             onMove(e) {
                 return canDropWithinDepth(e.to, e.dragged);
             },
@@ -118,10 +137,10 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
             onEnd: notifyMenuChange
         });
 
-        treeSortables.push(s);
+        instance.sortables.push(s);
     }
 
-    const notInMenuSortable = Sortable.create(notInMenuList, {
+    instance.notInMenuSortable = Sortable.create(notInMenuList, {
         group: {
             name: "cms-menu",
             pull: true,
@@ -131,6 +150,8 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
         animation: 140,
         handle: ".drag-handle",
         draggable: ".tree-node",
+        filter: ".menu-action",
+        preventOnFilter: false,
         onMove(e) {
             if (e.from === notInMenuList && e.to === notInMenuList)
                 return false; // Kan inte sorteras i samma lista.
@@ -143,13 +164,11 @@ export function initMenuEditor(rootId, dotNetRef, options = {}) {
     for (const c of inMenuTree.querySelectorAll(".tree-children"))
         makeTreeSortable(c);
 
-    treeViewerInstances.set(key, {
-        type: "menu",
-        rootId,
-        dotNetRef,
-        notInMenuSortable,
-        sortables: treeSortables
-    });
+    treeViewerInstances.set(key, instance);
+
+    return {
+        instanceId: instance.instanceId
+    };
 }
 
 export function destroyMenuEditor(rootId) {
@@ -159,12 +178,35 @@ export function destroyMenuEditor(rootId) {
     if (!instance)
         return;
 
+    instance.disposed = true;
+
     instance.notInMenuSortable?.destroy();
 
     for (const s of instance.sortables ?? [])
         s.destroy();
 
     treeViewerInstances.delete(key);
+}
+
+export function getMenuEditorTree(rootId) {
+    const key = `menu:${rootId}`;
+    const instance = treeViewerInstances.get(key);
+
+    if (!instance)
+        return { instanceId: "", tree: [] };
+
+    const root = document.getElementById(rootId);
+    if (!root)
+        return { instanceId: instance.instanceId, tree: []};
+
+    const inMenuTree = root.querySelector("#in-menu-tree");
+    if (!inMenuTree)
+        return { instanceId: instance.instanceId, tree: []};
+
+    return {
+        instanceId: instance.instanceId,
+        tree: readContainer(inMenuTree)
+    };
 }
 
 function readContainer(container) {
@@ -175,12 +217,14 @@ function readContainer(container) {
 function readNode(node) {
     const id = node.dataset.id ?? "";
     const menuItemId = node.dataset.menuItemId ?? "";
+    const iconId = node.dataset.iconId ?? "";
     const label = node.querySelector(":scope > .node-row > .node-label")?.textContent?.trim() ?? "";
     const childContainer = node.querySelector(":scope > .tree-children");
 
     return {
         id,
         menuItemId,
+        iconId,
         label,
         children: childContainer ? readContainer(childContainer) : []
     };

@@ -16,12 +16,13 @@
 </form>
 
 <div class="bg-slate-50 rounded-2xl shadow-lg mt-15">
-    <ImageTabs @ref="ImageTabsRef" OnValidationErrors="@((v) => ValidationErrorsOfImageRetrieval = v)"
+    <ImageTabs @ref="ImageTabsRef" AllowedImageTabs="AllowedImageTabs"
+               OnValidationErrors="@((v) => ValidationErrorsOfImageRetrieval = v)"
                OnTabSelected="@((images) => { ImagesOfSelectedTab = images; })" />
     <div class="p-3 min-h-200">
         @if (ValidationErrorsOfImageRetrievalDisplay.Keys.Contains("Images"))
         {
-            <ul class="error">
+            <ul class="error text-center">
                 @foreach (string error in ValidationErrorsOfImageRetrievalDisplay["Images"])
                 {
                     <li>@error</li>
@@ -36,7 +37,7 @@
             }
             else
             {
-                <div class="grid grid-cols-4 gap-4"">
+                <div class="@(ImagesOfSelectedTab.Item1 != ImageType.Icon ? "grid grid-cols-4" : "flex flex-wrap") gap-4">
                     @foreach (ImageDTO image in ImagesOfSelectedTab.Item2)
                     {
                         string basePath = $"/images/{image.Id}";
@@ -45,16 +46,26 @@
                         !string.IsNullOrWhiteSpace(svAlt)
                             ? svAlt
                             : "Bild";
-
-                        <picture class=" cursor-pointer" @onclick="() => HandleImageClick(image, width, height)">
-                            <source media="max-width: 600px" type="image/webp" srcset="@($"{basePath}/webp/mobile.webp")" />
-                            <source media="min-width: 601px" type="image/webp" srcset="@($"{basePath}/webp/desktop.webp")" />
-                            <source media="max-width: 600px" srcset="@($"{basePath}/jpg/mobile.jpg")" />
-                            <source media="min-width: 601px" srcset="@($"{basePath}/jpg/desktop.jpg")" />
-                            <img src="@($"{basePath}/jpg/desktop.jpg")" width="@width" height="@height" alt="@altText" loading="lazy"
+                        
+                        @if (image.Type != ImageType.Icon.ToString())
+                        {
+                            <picture class="max-w-100 cursor-pointer" @onclick="() => HandleImageClick(image, width, height)">
+                                <source media="max-width: 600px" type="image/webp" srcset="@($"{basePath}/webp/mobile.webp")" />
+                                <source media="min-width: 601px" type="image/webp" srcset="@($"{basePath}/webp/desktop.webp")" />
+                                <source media="max-width: 600px" srcset="@($"{basePath}/jpg/mobile.jpg")" />
+                                <source media="min-width: 601px" srcset="@($"{basePath}/jpg/desktop.jpg")" />
+                                <img src="@($"{basePath}/jpg/desktop.jpg")" width="@width" height="@height" alt="@altText" loading="lazy"
+                                     decoding="async"
+                                     class="object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesOfSelectedTab.Item1]" />
+                            </picture>
+                        }
+                        else
+                        {
+                            <img src="@($"{basePath}/svg/icon.svg")" width="150" height="150" alt="@altText" loading="lazy"
                                  decoding="async"
-                                 class="object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesOfSelectedTab.Item1]" />
-                        </picture>
+                                 class="cursor-pointer object-cover rounded-lg shadow-md @CSSClassesForImageType[ImagesOfSelectedTab.Item1]"
+                                 @onclick="() => HandleImageClick(image, width, height)" />
+                        }
                     }
                 </div>
             }

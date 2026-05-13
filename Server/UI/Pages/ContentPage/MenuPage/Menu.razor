@@ -1,6 +1,8 @@
 @page "/admin/content/menu"
 @inherits MenuBase
 @using Server.API.Routes.Menu.GET.State
+@using Server.UI.Components.ImageSelector
+@using Server.UI.Components.Overlay
 @rendermode InteractiveServer
 
 <PageTitle>Meny</PageTitle>
@@ -22,7 +24,7 @@
     else
     {
         <div class="flex flex-col gap-4">
-            <div id="menu-editor-root" class="flex gap-x-4">
+            <div @key="MenuEditorRenderVersion" id="menu-editor-root" class="flex gap-x-4">
                 <section class="border border-slate-300 bg-white rounded-xl p-4 shadow-sm flex-2">
                     <h2 class="font-semibold mb-3 text-slate-800">Inte i menyn</h2>
                     <ul id="not-in-menu-list" class="space-y-2 min-h-24">
@@ -58,7 +60,8 @@
                 @if (ValidationErrors.Keys.Contains("menuItems"))
                 {
                     <small class="error text-sm">@ValidationErrors["menuItems"][0]</small>
-                } else if (!string.IsNullOrWhiteSpace(ResultMessage.Message))
+                }
+                else if (!string.IsNullOrWhiteSpace(ResultMessage.Message))
                 {
                     @if (ResultMessage.IsSuccess)
                     {
@@ -78,14 +81,28 @@
     }
 </div>
 
+<Overlay IsOpen="IsIconSelectorOverlayOpen" Changed="@(v => OnOverlayChanged(v))">
+    <div class="w-200">
+        <ImageSelector AllowedImageTabs="AllowedImageTabs" OnImageSelected="@(v => OnIconSelectedFromOverlay(v))" />
+    </div>
+</Overlay>
+
 
 @code {
-    private RenderFragment RenderInMenuItem(MenuItemDTO item, int level) => @<li @key="item.PageInfo.PageId"
-                                                                                 class="tree-node" data-id="@item.PageInfo.PageId" data-menu-item-id="@item.MenuItemId">
+    private RenderFragment RenderInMenuItem(MenuItemDTO item, int level) => @<li @key="item.MenuItemId"
+                                                                                 class="tree-node" data-id="@item.PageInfo.PageId" data-menu-item-id="@item.MenuItemId" data-icon-id="@item.IconId">
         <div class="node-row flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 shadow-sm bg-slate-50">
             <span class="drag-handle cursor-grab select-none rounded bg-slate-200 px-2 py-0.5 text-slate-600 font-bold"
                   title="Dra">::</span>
             <span class="node-label text-sm text-slate-800">@(item.PageInfo.Title)</span>
+            @if (item.IconId is null)
+            {
+                <button @onclick="@(() => OpenIconSelector(item.PageInfo.PageId))" class="menu-action cursor-pointer">Välj ikon</button>
+            }
+            else
+            {
+                <img src="@($"/images/{item.IconId}/svg/icon.svg")" alt="Meny ikon" width="64" height="64" @onclick="@(() => OpenIconSelector(item.PageInfo.PageId))" title="Byt ikon" class="menu-action cursor-pointer" />
+            }
         </div>
         <ul class="@GetChildrenContainerClasses(level)">
             @foreach (MenuItemDTO child in item.Children)

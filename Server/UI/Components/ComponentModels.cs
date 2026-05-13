@@ -77,3 +77,14 @@ public record MenuTreeNode
     public string Label { get; init; } = string.Empty;
     public List<MenuTreeNode> Children { get; init; } = [];
 }
+
+public record MenuTreePayload
+{
+    public required string InstanceId { get; init; }
+    public required List<MenuTreeNode> Tree { get; init; }
+}
+
+public record MenuEditorInitResult
+{
+    public required string InstanceId { get; init; }
+}

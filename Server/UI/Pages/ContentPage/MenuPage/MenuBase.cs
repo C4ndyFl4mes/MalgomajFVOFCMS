@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Server.API.Enums;
 using Server.API.Exceptions;
 using Server.API.Routes.Menu.GET.State;
 using Server.API.Routes.Menu.POST;
@@ -23,19 +24,27 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
     protected IValidator<PostMenuRequest> PostMenuValidator { get; set; } = default!;
     [Inject]
     protected IJSRuntime JS { get; set; } = default!;
+
     protected GetMenuStateResponse? MenuState { get; set; }
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
     protected (bool IsSuccess, string Message) ResultMessage { get; set; }
+    protected bool IsIconSelectorOverlayOpen { get; set; } = false;
+    protected Guid? IconSelectedForPageId { get; set; }
+    protected List<ImageType> AllowedImageTabs { get; set; } = [ImageType.Icon];
 
     private CancellationTokenSource? _getMenuCts;
     private CancellationTokenSource? _postMenuCts;
 
-    private bool _menuEditorNeedsInit = true;
     private IJSObjectReference? _treeModule;
     private DotNetObjectReference<MenuBase>? _selfRef;
     private const string MenuEditorRootId = "menu-editor-root";
     private const int MaxMenuDepth = 3;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
+    private string _currentTreeInstanceId = string.Empty;
+    private bool _isReloadingMenu;
+    private int _initializedRenderVersion = -1;
+
+    protected int MenuEditorRenderVersion { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,15 +72,27 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (MenuState is null || !_menuEditorNeedsInit)
+        if (firstRender)
+        {
+            _treeModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/treeviewer.bundle.js");
+            _selfRef = DotNetObjectReference.Create(this);
+        }
+
+        if (MenuState is null || _treeModule is null)
             return;
 
+        if (_initializedRenderVersion == MenuEditorRenderVersion)
+            return;
 
-        _treeModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/treeviewer.bundle.js");
-        _selfRef ??= DotNetObjectReference.Create(this);
+        MenuEditorInitResult initResult = await _treeModule.InvokeAsync<MenuEditorInitResult>(
+            "initMenuEditor",
+            MenuEditorRootId,
+            _selfRef,
+            new { maxDepth = MaxMenuDepth }
+        );
 
-        await _treeModule.InvokeVoidAsync("initMenuEditor", MenuEditorRootId, _selfRef, new { maxDepth = MaxMenuDepth });
-        _menuEditorNeedsInit = false;
+        _currentTreeInstanceId = initResult.InstanceId;
+        _initializedRenderVersion = MenuEditorRenderVersion;
     }
 
     // Laddar in menyn.
@@ -85,7 +106,8 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
         try
         {
             MenuState = await GetMenuStateData.GetMenuStateAsync(nextCts.Token);
-            _menuEditorNeedsInit = true;
+            _currentTreeInstanceId = string.Empty;
+            MenuEditorRenderVersion++;
             if (nextCts.Token.IsCancellationRequested)
                 return;
         }
@@ -112,6 +134,38 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
             return;
         }
 
+        if (_treeModule is not null)
+        {
+            MenuTreePayload? payload = await _treeModule.InvokeAsync<MenuTreePayload>("getMenuEditorTree", MenuEditorRootId);
+
+            if (payload is not null && payload.InstanceId == _currentTreeInstanceId)
+            {
+                List<MenuTreeNode> nodes = payload.Tree;
+
+                List<MenuItemDTO> existingInMenu = Flatten(MenuState.InMenu).ToList();
+
+                Dictionary<Guid, MenuItemDTO> existingByPageId = existingInMenu
+                    .GroupBy(x => x.PageInfo.PageId)
+                    .ToDictionary(g => g.Key, g => g.First());
+                
+                Dictionary<Guid, SimplePageInformationDTO> allPagesById = MenuState.NotInMenu
+                    .Concat(existingInMenu.Select(x => x.PageInfo))
+                    .GroupBy(x => x.PageId)
+                    .ToDictionary(g => g.Key, g => g.First());
+                
+                MenuState.InMenu = RebuildInMenu(nodes, existingByPageId, allPagesById, depth: 1);
+
+                HashSet<Guid> usedPageIds = Flatten(MenuState.InMenu)
+                    .Select(x => x.PageInfo.PageId)
+                    .ToHashSet();
+                
+                MenuState.NotInMenu = allPagesById.Values
+                    .Where(x => !usedPageIds.Contains(x.PageId))
+                    .OrderBy(x => x.Title)
+                    .ToList();
+            }
+        }
+
         PostMenuRequest request = new()
         {
             MenuItems = MapToPostMenuItems(MenuState.InMenu).ToList()
@@ -133,12 +187,15 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
 
         try
         {
+            _isReloadingMenu = true;
+
             PostMenuResponse response = await PostMenuData.PostMenuAsync(request, nextCts.Token);
             ResultMessage = (true, response.Message);
-            _menuEditorNeedsInit = true;
 
             if (nextCts.Token.IsCancellationRequested)
                 return;
+
+            await LoadMenuStateAsync();
         }
         catch (OperationCanceledException)
         {
@@ -158,19 +215,80 @@ public class MenuBase : ComponentBase, IDisposable, IAsyncDisposable
         }
         finally
         {
-            await InvokeAsync(StateHasChanged);
+            _isReloadingMenu = false;
         }
+    }
+
+    protected void OnOverlayChanged(bool isOpen)
+    {
+        IsIconSelectorOverlayOpen = isOpen;
+    }
+
+    protected void OpenIconSelector(Guid pageId)
+    {
+        IconSelectedForPageId = pageId;
+        OnOverlayChanged(true);
+    }
+
+    protected async Task OnIconSelectedFromOverlay(ImageInspectionModel icon)
+    {
+        OnOverlayChanged(false);
+        await IconSelected(icon);
+    }
+
+    protected async Task IconSelected(ImageInspectionModel icon)
+    {
+        if (MenuState is null)
+            return;
+        
+        List<MenuItemDTO> existingInMenu = Flatten(MenuState.InMenu).ToList();
+
+        MenuItemDTO? item = existingInMenu.Find(i => i.PageInfo.PageId == IconSelectedForPageId);
+        if (item is null)
+            return;
+
+        item.IconId = icon.Image.Id;
+
+        MenuState.InMenu = SetIcon(MenuState.InMenu, item);
+
+        IconSelectedForPageId = null;
+    }
+
+    protected List<MenuItemDTO> SetIcon(List<MenuItemDTO> items, MenuItemDTO updatedItem)
+    {
+        foreach (MenuItemDTO item in items)
+        {
+            if (item.PageInfo.PageId == IconSelectedForPageId)
+            {
+                int index = items.IndexOf(item);
+                if (index == -1)
+                    continue;
+                
+                items[index] = updatedItem;
+                break;
+            }
+
+            if (item.Children.Count != 0)
+                item.Children = SetIcon(item.Children, updatedItem);
+        }
+
+        return items;
     }
 
     [JSInvokable]
     public Task OnMenuChanged(string treeJson)
     {
-        if (MenuState is null)
+        if (MenuState is null || _isReloadingMenu)
+            return Task.CompletedTask;
+        
+        MenuTreePayload? payload = JsonSerializer.Deserialize<MenuTreePayload>(treeJson, _jsonOptions);
+        if (payload is null)
             return Task.CompletedTask;
 
-        List<MenuTreeNode>? nodes = JsonSerializer.Deserialize<List<MenuTreeNode>>(treeJson, _jsonOptions);
-        if (nodes is null)
+        if (payload.InstanceId != _currentTreeInstanceId)
             return Task.CompletedTask;
+
+        List<MenuTreeNode> nodes = payload.Tree;
 
         List<MenuItemDTO> existingInMenu = Flatten(MenuState.InMenu).ToList();
 

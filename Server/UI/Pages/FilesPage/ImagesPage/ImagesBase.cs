@@ -22,6 +22,7 @@ public class ImagesBase : ComponentBase
     protected ImagePostData ImagePostData { get; set; } = default!;
 
     protected ImageInspectionModel? ImageInspection { get; set; } = null;
+    protected List<ImageType> AllowedImageTabs { get; set; } = [ImageType.Normal, ImageType.Banner, ImageType.Square, ImageType.Icon];
 
     protected Dictionary<string, string[]> ValidationErrors { get; set; } = [];
     protected Dictionary<string, string[]> ValidationErrorsOfImageRetrieval

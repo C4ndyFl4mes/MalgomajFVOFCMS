@@ -8,6 +8,8 @@ public class ImageSelectorBase : ComponentBase
 {
     [Parameter]
     public EventCallback<ImageInspectionModel> OnImageSelected { get; set; }
+    [Parameter]
+    public List<ImageType> AllowedImageTabs { get; set; } = [ImageType.Normal, ImageType.Banner, ImageType.Square, ImageType.Icon];
 
     protected (ImageType, IEnumerable<ImageDTO>) ImagesOfSelectedTab { get; set; } = (ImageType.Normal, []);
     protected Dictionary<string, string[]> ValidationErrorsOfImageRetrieval { get; set; } = [];
