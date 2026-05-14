@@ -59,7 +59,7 @@ public class AuthenticationBase : ComponentBase, IAsyncDisposable
         await InvokeAsync(StateHasChanged);
 
         await Task.Delay(2000);
-        NavigationManager.NavigateTo("/admin", forceLoad: true);
+        NavigationManager.NavigateTo("/admin/panel", forceLoad: true);
     }
 
     private async Task<APIResult<SignInResponse>> SignInFromBrowserAsync(SignInRequest request)
