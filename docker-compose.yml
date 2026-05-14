@@ -27,16 +27,44 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    ports:
-      - "5126:8080"
+    # ports:
+    #   - "5126:8080"
     secrets:
-      - app_connection_string
+      - source: app_connection_string
+        target: app_connection_string.txt
+      - source: audience
+        target: audience.txt
+      - source: issuer
+        target: issuer.txt
+      - source: secret_key
+        target: secret_key.txt
+      - source: admin_email
+        target: admin_email.txt
+      - source: admin_name
+        target: admin_name.txt
+      - source: admin_password
+        target: admin_password.txt
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+  
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_certs:/config
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_certs:
 
 secrets:
   postgres_user:
@@ -46,4 +74,16 @@ secrets:
   postgres_db:
     file: .secrets/postgres_db.txt
   app_connection_string:
-    file: .secrets/app_connection_string.txt
+    file: .secrets/app_connection_string.docker.txt
+  audience:
+    file: .secrets/audience.txt
+  issuer:
+    file: .secrets/issuer.txt
+  secret_key:
+    file: .secrets/secret_key.txt
+  admin_email:
+    file: .secrets/admin_email.txt
+  admin_name:
+    file: .secrets/admin_name.txt
+  admin_password:
+    file: .secrets/admin_password.txt

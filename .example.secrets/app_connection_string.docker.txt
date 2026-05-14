@@ -1,0 +1,2 @@
+Används för att kunna ansluta till databasen vid produktion i Docker.
+Host=database;Username=postgres;Password=postgres;Database=local_malgomajfvofcms_placeholder

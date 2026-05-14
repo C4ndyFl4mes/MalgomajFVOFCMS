@@ -82,7 +82,14 @@ public class AuthenticationBase : ComponentBase, IAsyncDisposable
     {
         if (_authModule is not null)
         {
-            await _authModule.DisposeAsync();
+            try
+            {
+                await _authModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignorera felet som uppstår när Blazor försöker rensa upp JS-modulen efter att användaren har navigerat bort från sidan eller stängt fliken.
+            }
         }
     }
 }
