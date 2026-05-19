@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Server.API.Data;
 using Server.API.Exceptions;
@@ -55,13 +57,14 @@ else
     throw new InvalidOperationException("The connection string was not found in the configuration. Please ensure that the app_connection_string.txt file is present in the secrets directory and contains the correct connection string.");
 }
 
-
 // Services:
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddFastEndpoints().SwaggerDocument();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    
 builder.Services.AddScoped<NavigationState>();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();

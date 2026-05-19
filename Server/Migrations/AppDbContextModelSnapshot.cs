@@ -33,7 +33,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BoardMembers");
+                    b.ToTable("BoardMembers", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.BoardMemberTranslationModel", b =>
@@ -51,7 +51,7 @@ namespace Server.Migrations
 
                     b.HasKey("BoardMemberId", "LanguageCode");
 
-                    b.ToTable("BoardMemberTranslations");
+                    b.ToTable("BoardMemberTranslations", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.ContactModel", b =>
@@ -74,7 +74,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contact", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.ExternalMediaModel", b =>
@@ -93,7 +93,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExternalMedia");
+                    b.ToTable("ExternalMedia", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.ExternalMediaTranslationModel", b =>
@@ -111,7 +111,7 @@ namespace Server.Migrations
 
                     b.HasKey("ExternalMediaId", "LanguageCode");
 
-                    b.ToTable("ExternalMediaTranslations");
+                    b.ToTable("ExternalMediaTranslations", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.ImageAltTranslationModel", b =>
@@ -129,7 +129,7 @@ namespace Server.Migrations
 
                     b.HasKey("ImageId", "LanguageCode");
 
-                    b.ToTable("ImageAltTranslations");
+                    b.ToTable("ImageAltTranslations", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.ImageModel", b =>
@@ -143,7 +143,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.MenuItemModel", b =>
@@ -173,7 +173,7 @@ namespace Server.Migrations
 
                     b.HasIndex("PageId");
 
-                    b.ToTable("MenuItems");
+                    b.ToTable("MenuItems", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.PageModel", b =>
@@ -200,7 +200,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pages");
+                    b.ToTable("Pages", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.PageTranslationModel", b =>
@@ -237,7 +237,7 @@ namespace Server.Migrations
 
                     b.HasKey("PageId", "LanguageCode");
 
-                    b.ToTable("PageTranslations");
+                    b.ToTable("PageTranslations", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.RoleModel", b =>
@@ -256,7 +256,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.SlideModel", b =>
@@ -269,7 +269,7 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Slides");
+                    b.ToTable("Slides", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.UserModel", b =>
@@ -303,7 +303,7 @@ namespace Server.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Server.API.Models.BoardMemberTranslationModel", b =>
