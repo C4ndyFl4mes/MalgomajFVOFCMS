@@ -29,6 +29,8 @@ services:
         condition: service_healthy
     # ports:
     #   - "5126:8080"
+    volumes:
+      - images_data: /app/wwwroot/images
     secrets:
       - source: app_connection_string
         target: app_connection_string.txt
@@ -65,6 +67,7 @@ volumes:
   pgdata:
   caddy_data:
   caddy_certs:
+  images_data:
 
 secrets:
   postgres_user:
