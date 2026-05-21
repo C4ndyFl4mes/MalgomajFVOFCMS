@@ -30,7 +30,7 @@ services:
     # ports:
     #   - "5126:8080"
     volumes:
-      - images_data: /app/wwwroot/images
+      - images_data:/app/wwwroot/images
     secrets:
       - source: app_connection_string
         target: app_connection_string.txt
