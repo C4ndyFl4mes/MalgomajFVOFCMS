@@ -8,7 +8,7 @@ public class PostPageEndpoint(AppDbContext ctx) : Endpoint<PostPageRequest, Post
 {
     public override void Configure()
     {
-        Post("api/page");
+        Post("/api/pages/save");
         Roles("Administrator", "Editor");
     }
 

@@ -8,7 +8,7 @@ public class GetPageListEndpoint(AppDbContext ctx) : EndpointWithoutRequest<GetP
 {
     public override void Configure()
     {
-        Get("api/pages");
+        Get("/api/pages");
         Roles("Administrator", "Editor");
     }
 

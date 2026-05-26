@@ -7,7 +7,7 @@ public class GetMenuStateEndpoint(AppDbContext ctx) : EndpointWithoutRequest<Get
 {
     public override void Configure()
     {
-        Get("api/menu/state");
+        Get("/api/menu/state");
         Roles("Administrator", "Editor");
     }
 

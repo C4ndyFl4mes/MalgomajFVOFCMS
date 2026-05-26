@@ -8,7 +8,7 @@ public class GetPageEditorEndpoint(AppDbContext ctx) : Endpoint<GetPageEditorReq
 {
     public override void Configure()
     {
-        Get("api/page/{pageId}");
+        Get("/api/pages/{pageId}");
         Roles("Administrator", "Editor");
     }
 

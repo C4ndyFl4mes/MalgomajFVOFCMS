@@ -8,7 +8,7 @@ public class ImagePostEndpoint(AppDbContext ctx) : Endpoint<PostImageRequest, Po
 {
     public override void Configure()
     {
-        Post("api/image");
+        Post("/api/images");
         Roles("Administrator", "Editor");
         AllowFileUploads();
         MaxRequestBodySize(10 * 1024 * 1024); // 10 MB

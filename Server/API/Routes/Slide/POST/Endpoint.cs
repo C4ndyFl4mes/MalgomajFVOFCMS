@@ -7,7 +7,7 @@ public class PostSlideEndpoint(AppDbContext ctx) : Endpoint<PostSlideRequest, Po
 {
     public override void Configure()
     {
-        Post("/api/slide");
+        Post("/api/slides/save");
         Roles("Administrator", "Editor");
     }
 

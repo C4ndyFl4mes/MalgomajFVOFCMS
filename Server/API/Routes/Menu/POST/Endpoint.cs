@@ -7,7 +7,7 @@ public class PostMenuEndpoint(AppDbContext ctx) : Endpoint<PostMenuRequest, Post
 {
     public override void Configure()
     {
-        Post("api/menu/save");
+        Post("/api/menu/save");
         Roles("Administrator", "Editor");
     }
 

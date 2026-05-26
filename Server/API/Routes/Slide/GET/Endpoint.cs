@@ -8,7 +8,7 @@ public class GetSlideshowEndpoint(AppDbContext ctx) : Endpoint<GetSlideshowReque
 {
     public override void Configure()
     {
-        Get("api/slide");
+        Get("/api/slides");
         AllowAnonymous();
     }
 

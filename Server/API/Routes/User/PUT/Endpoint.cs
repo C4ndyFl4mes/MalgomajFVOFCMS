@@ -7,7 +7,7 @@ public class UpdatePasswordEndpoint(AppDbContext ctx, IConfiguration configurati
 {
     public override void Configure()
     {
-        Put("/api/user/password");
+        Put("/api/user/change-password");
         Roles("Administrator", "Editor");
     }
 

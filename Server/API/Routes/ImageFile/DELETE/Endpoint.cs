@@ -7,7 +7,7 @@ public class DeleteImageEndpoint(AppDbContext ctx) : Endpoint<DeleteImageRequest
 {
     public override void Configure()
     {
-        Delete("/api/image/{id}");
+        Delete("/api/images/{id}");
         Roles("Administrator", "Editor");
     }
 

@@ -7,8 +7,8 @@ public class ImagePutEndpoint(AppDbContext ctx) : Endpoint<PutImageRequest, PutI
 {
     public override void Configure()
     {
-        Put("/api/images/");
-        AllowAnonymous();
+        Put("/api/images");
+        Roles("Administrator", "Editor");
     }
 
     public override async Task<PutImageResponse> ExecuteAsync(PutImageRequest request, CancellationToken ct)
