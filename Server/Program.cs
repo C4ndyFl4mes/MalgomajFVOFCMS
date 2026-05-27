@@ -64,7 +64,7 @@ builder.Services.AddFastEndpoints().SwaggerDocument();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
+
 builder.Services.AddScoped<NavigationState>();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
@@ -148,7 +148,7 @@ if (!await dbContext.Users.AnyAsync())
         throw new InvalidOperationException("Admin password is not configured.");
     string roleId = (await dbContext.Roles.FirstOrDefaultAsync(r => r.Name == "Administrator"))?.Id.ToString() ??
         throw new InvalidOperationException("Admin role is not configured in the database.");
-    
+
     UserModel adminUser = new()
     {
         Id = Guid.NewGuid(),
@@ -170,7 +170,16 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseWhen(
+    ctx => !ctx.Request.Path.StartsWithSegments("/api"),
+    ui =>
+    {
+        ui.UseStatusCodePagesWithReExecute(
+            "/admin/not-found",
+            createScopeForStatusCodePages: true
+        );
+    }
+);
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
